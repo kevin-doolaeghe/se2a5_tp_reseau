@@ -810,7 +810,7 @@ ssh capbreton.plil.info
 
 * Créer une image xen:
 ```
-xen-create-image --hostname=demineur --ip=10.60.164.222 --gateway=10.60.164.254 --netmask=255.255.255.0 --dir=/usr/local/xen --password=pasglop --dist=buster
+xen-create-image --hostname=demineur --ip=10.60.100.164 --gateway=10.60.100.254 --netmask=255.255.255.0 --dir=/usr/local/xen --password=pasglop --dist=buster
 ```
 
 * Création d'une partition de 10Go pour la machine virtuelle:
