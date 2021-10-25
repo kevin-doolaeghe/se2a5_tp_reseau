@@ -20,6 +20,10 @@
   * [Configuration du Wifi](#configuration-du-wifi)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
 * [Tests d'intrusion](#tests-dintrusion)
+  * [Cassage de clef WEP d'un point d'accès Wifi](#cassage-de-clef-wep-dun-point-daccès-wifi)
+  * [Cassage du mot de passe WPA-PSK par force brute](#cassage-du-mot-de-passe-wpa-psk-par-force-brute)
+  * [Attaque du type "homme du milieu" par usurpation ARP](#attaque-du-type-homme-du-milieu-par-usurpation-arp)
+  * [Intrusion sur un serveur Web](#intrusion-sur-un-serveur-web)
 * [Résumé des séances](#résumé-des-séances)
 
 # Plan d'adressage
@@ -1319,7 +1323,7 @@ crunch 8 8 0123456789 -o dictionnaire
 aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
 ```
 
-## Attaque du type "homme du milieu" par usurpation ARP :
+## Attaque du type "homme du milieu" par usurpation ARP
 
 Sur la machine qui effectue l'attaque :
 
