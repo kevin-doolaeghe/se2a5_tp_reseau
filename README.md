@@ -108,7 +108,7 @@ VLAN | Nom | Réseau IPv6 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur
 
 ## Configuration de base
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 ```
 switch>enable
@@ -152,7 +152,7 @@ SE2A5-R1(config)#license boot level network-advantage
 SE2A5-R1(config)#fhrp version vrrp v3
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 ```
 switch>enable
@@ -198,7 +198,7 @@ SE2A5-R2(config)#fhrp version vrrp v3
 
 ## Configuration du VLAN 530
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * VLAN 530
 ```
@@ -221,7 +221,7 @@ SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * VLAN 530
 ```
@@ -246,7 +246,7 @@ SE2A5-R2(config-if)#exit
 
 ## Configuration du VLAN 110
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * VLAN 110
 ```
@@ -269,7 +269,7 @@ SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * VLAN 110
 ```
@@ -294,7 +294,7 @@ SE2A5-R2(config-if)#exit
 
 ## Paramétrage du routage IPv4 OSPF
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * Routage IPv4 - Protocole OPSF
 ```
@@ -310,7 +310,7 @@ SE2A5-R1(config-router)#default-information originate
 SE2A5-R1(config-router)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * Routage IPv4 - Protocole OPSF
 ```
@@ -328,7 +328,7 @@ SE2A5-R2(config-router)#exit
 
 ## Redondance des routeurs via le protocole VRRP
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * VLAN 110
 ```
@@ -339,7 +339,7 @@ SE2A5-R1(config-if)#vrrp 10 priority 110
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * VLAN 110
 ```
@@ -354,7 +354,7 @@ SE2A5-R2(config-if)#exit
 
 ## Translation NAT statique
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * Configuration NAT
 ```
@@ -382,7 +382,7 @@ La solution avec les routes statiques demande que les VM aient une configuration
 En attente d'une solution de contournement.
 Ou ajouter les routes statiques comme pour le Cisco Catalyst 9200.
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * Configuration NAT
 ```
@@ -415,7 +415,7 @@ SE2A5-R2(config)#ip route 193.48.57.173 255.255.255.255 10.60.100.173
 
 ## Configuration de l'accès Internet de secours
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * Interface vers Cisco ISR 4331
 ```
@@ -441,7 +441,7 @@ SE2A5-R1(config-if)#vrrp 10 track 1 decrement 50
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * Interface vers Cisco ISR 4331
 ```
@@ -469,9 +469,9 @@ SE2A5-R2(config-if-vrrp)#exit
 SE2A5-R2(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco ISR 4331**
+### &ensp; &rarr; **Cisco ISR 4331**
 
-#### $\qquad$ $\qquad$ **Configuration de base :**
+#### &ensp; &ensp; **Configuration de base :**
 
 ```
 switch>enable
@@ -515,7 +515,7 @@ SE2A5-R3(config)#license boot level network-advantage
 SE2A5-R3(config)#fhrp version vrrp v3
 ```
 
-#### $\qquad$ $\qquad$ **Pont vers le VLAN 532 :**
+#### &ensp; &ensp; **Pont vers le VLAN 532 :**
 
 * Bridge VLAN 532
 ```
@@ -536,7 +536,7 @@ SE2A5-R3(config-if-srv)#exit
 SE2A5-R3(config-if)#exit
 ```
 
-#### $\qquad$ $\qquad$ **Pont vers le VLAN 110 :**
+#### &ensp; &ensp; **Pont vers le VLAN 110 :**
 
 *  Bridge VLAN 110
 ```
@@ -573,7 +573,7 @@ SE2A5-R3(config-if-srv)#exit
 SE2A5-R3(config-if)#exit
 ```
 
-#### $\qquad$ $\qquad$ **Translation NAT dynamique**
+#### &ensp; &ensp; **Translation NAT dynamique**
 
 * Configuration NAT
 ```
@@ -591,7 +591,7 @@ SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160
 
 ## Paramétrage IPv6
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * Routage IPv6 - Protocole RIPv6
 ```
@@ -618,7 +618,7 @@ SE2A5-R1(config-if)#ipv6 enable
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * Routage IPv6 - Protocole RIPv6
 ```
@@ -645,7 +645,7 @@ SE2A5-R2(config-if)#ipv6 enable
 SE2A5-R2(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco ISR 4331**
+### &ensp; &rarr; **Cisco ISR 4331**
 
 * Bridge VLAN 532
 ```
@@ -662,7 +662,7 @@ SE2A5-R3(config-if)#exit
 
 ## Configuration du VLAN 164
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * VLAN 164
 ```
@@ -690,7 +690,7 @@ SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * VLAN 164
 ```
@@ -721,7 +721,7 @@ SE2A5-R2(config-if)#exit
 
 ## Configuration du Wifi
 
-### $\qquad$ &rarr; **Cisco Catalyst 6509-E**
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
 * DHCP
 ```
@@ -743,7 +743,7 @@ SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Cisco Catalyst 9200**
+### &ensp; &rarr; **Cisco Catalyst 9200**
 
 * DHCP
 ```
@@ -765,9 +765,9 @@ SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Point d'accès Wifi n°1**
+### &ensp; &rarr; **Point d'accès Wifi n°1**
 
-#### $\qquad$ $\qquad$ **Configuration de base :**
+#### &ensp; &ensp; **Configuration de base :**
 
 ```
 ap>enable
@@ -802,7 +802,7 @@ SE2A5-AP1(config)#enable secret glopglop
 SE2A5-AP1(config)#banner motd #Restricted Access#
 ```
 
-#### $\qquad$ $\qquad$ **VLAN 164 :**
+#### **VLAN 164 :**
 
 * VLAN 164
 ```
@@ -834,9 +834,9 @@ SE2A5-AP1(config-if)#ssid DEMINEUR1
 SE2A5-AP1(config-if)#exit
 ```
 
-### $\qquad$ &rarr; **Point d'accès Wifi n°2**
+### &ensp; &rarr; **Point d'accès Wifi n°2**
 
-#### $\qquad$ $\qquad$ **Configuration de base :**
+#### &ensp; &ensp; **Configuration de base :**
 
 ```
 ap>enable
@@ -871,7 +871,7 @@ SE2A5-AP2(config)#enable secret glopglop
 SE2A5-AP2(config)#banner motd #Restricted Access#
 ```
 
-#### $\qquad$ $\qquad$ **VLAN 164 :**
+#### &ensp; &ensp; **VLAN 164 :**
 
 * VLAN 164
 ```
@@ -938,7 +938,8 @@ mkfs.ext4 /dev/storage/demineur-home
 mkfs.ext4 /dev/storage/demineur-var
 ```
 
-* Modification de `/etc/xen/demineur.cfg` :  
+* Modification de `/etc/xen/demineur.cfg` :
+
 &ensp; &ensp; &rarr; Ajout des partitions virtuelles dans la variable `disk` :
 ```
 'phy:/dev/storage/demineur-home,xvda3,w',
@@ -1150,8 +1151,8 @@ a2enmod ssl
                 CustomLog /var/log/apache2/secure_access.log combined
                 SSLEngine on
                 SSLCertificateFile /etc/ssl/certs/demineur.site.crt
-SSLCertificateKeyFile /etc/ssl/private/demineur.site.key
-SSLCACertificateFile /etc/ssl/certs/GandiStandardSSLCA2.pem
+		SSLCertificateKeyFile /etc/ssl/private/demineur.site.key
+		SSLCACertificateFile /etc/ssl/certs/GandiStandardSSLCA2.pem
                 SSLVerifyClient None
         </VirtualHost>
 </IfModule>
