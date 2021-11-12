@@ -207,7 +207,7 @@ SE2A5-R1(config-vlan)#name INTERCO-4A
 SE2A5-R1(config-vlan)#exit
 SE2A5-R1(config)#interface vlan 530
 SE2A5-R1(config-if)#description INTERCO-4A
-SE2A5-R1(config-if)#ip address 192.168.222.34 255.255.255.248
+SE2A5-R1(config-if)#ip address 192.168.222.66 255.255.255.248
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
@@ -230,7 +230,7 @@ SE2A5-R2(config-vlan)#name INTERCO-4A
 SE2A5-R2(config-vlan)#exit
 SE2A5-R2(config)#interface vlan 530
 SE2A5-R2(config-if)#description INTERCO-4A
-SE2A5-R2(config-if)#ip address 192.168.222.35 255.255.255.248
+SE2A5-R2(config-if)#ip address 192.168.222.67 255.255.255.248
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
@@ -299,13 +299,12 @@ SE2A5-R2(config-if)#exit
 * Routage IPv4 - Protocole OPSF
 ```
 SE2A5-R1(config)#router ospf 1
-SE2A5-R1(config-router)#router-id 192.168.222.34
+SE2A5-R1(config-router)#router-id 192.168.222.66
 SE2A5-R1(config-router)#summary-address 193.48.57.160 255.255.255.240
 SE2A5-R1(config-router)#summary-address 10.0.0.0 255.0.0.0 not-advertise
-SE2A5-R1(config-router)#redistribute connected subnets
-SE2A5-R1(config-router)#redistribute static subnets
-SE2A5-R1(config-router)#network 192.168.222.32 0.0.0.7 area 10
-SE2A5-R1(config-router)#network 192.168.222.48 0.0.0.7 area 20
+SE2A5-R1(config-router)#redistribute connected subnets metric 1
+SE2A5-R1(config-router)#redistribute static subnets metric 1
+SE2A5-R1(config-router)#network 192.168.222.64 0.0.0.7 area 10
 SE2A5-R1(config-router)#default-information originate
 SE2A5-R1(config-router)#exit
 ```
@@ -315,13 +314,12 @@ SE2A5-R1(config-router)#exit
 * Routage IPv4 - Protocole OPSF
 ```
 SE2A5-R2(config)#router ospf 1
-SE2A5-R2(config-router)#router-id 192.168.222.34
+SE2A5-R2(config-router)#router-id 192.168.222.67
 SE2A5-R2(config-router)#summary-address 193.48.57.160 255.255.255.240
 SE2A5-R2(config-router)#summary-address 10.0.0.0 255.0.0.0 not-advertise
-SE2A5-R2(config-router)#redistribute connected subnets
-SE2A5-R2(config-router)#redistribute static subnets
-SE2A5-R2(config-router)#network 192.168.222.32 0.0.0.7 area 10
-SE2A5-R2(config-router)#network 192.168.222.48 0.0.0.7 area 20
+SE2A5-R2(config-router)#redistribute connected subnets metric 2
+SE2A5-R2(config-router)#redistribute static subnets metric 2
+SE2A5-R2(config-router)#network 192.168.222.64 0.0.0.7 area 10
 SE2A5-R2(config-router)#default-information originate
 SE2A5-R2(config-router)#exit
 ```
@@ -346,6 +344,7 @@ SE2A5-R1(config-if)#exit
 SE2A5-R2(config)#interface vlan 110
 SE2A5-R2(config-if)#vrrp 10 address-family ipv4
 SE2A5-R2(config-if-vrrp)#address 10.60.100.254
+SE2A5-R2(config-if-vrrp)#vrrpv2
 SE2A5-R2(config-if-vrrp)#priority 100
 SE2A5-R2(config-if-vrrp)#preempt
 SE2A5-R2(config-if-vrrp)#exit
@@ -381,6 +380,18 @@ La solution avec les routes statiques demande que les VM aient une configuration
 
 En attente d'une solution de contournement.
 Ou ajouter les routes statiques comme pour le Cisco Catalyst 9200.
+
+Les VM auront une configuration IP avec l'adresse locale et celle routée.
+La communication fonctionne désormais sauf pour les paquets UDP qui sont filtrés.
+On choisit de désactiver l'interface `l0` pour économiser une adresse routée.
+A la place, on passe par l'interface `null0`.
+
+```
+SE2A5-R1(config)#interface loopback 0
+SE2A5-R1(config-if)#shutdown
+SE2A5-R1(config-if)#exit
+SE2A5-R1(config)#ip route 193.48.57.160 255.255.255.240 null0
+```
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
