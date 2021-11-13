@@ -1214,7 +1214,7 @@ openssl req -nodes -newkey rsa:2048 -sha256 -keyout demineur.site.key -out demin
 
 ```
 mv demineur.site.key /etc/ssl/private
-mv demineur.site.csr /etc/ssl/cert
+mv demineur.site.csr /etc/ssl/certs
 ```
 
 Faire signer le certificat demineur.site.csr par une [https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) et placer le nouveau certificat (.crt) dans le répertoire /etc/ssl/certs.
@@ -1232,6 +1232,8 @@ a2enmod ssl
 
 * Modification du fichier `/etc/apache2/ports.conf` :
 ```
+Listen 80
+
 <IfModule mod_ssl.c>
    Listen 443
 </IfModule>
@@ -1243,7 +1245,7 @@ a2enmod ssl
 * Modification du fichier `/etc/apache2/sites-available/000-demineur.site-ssl.conf` :
 ```
 <IfModule mod_ssl.c>
-        <VirtualHost 10.0.20.1:443>
+        <VirtualHost 193.48.57.164:443>
                 ServerName demineur.site
                 ServerAlias www.demineur.site
                 DocumentRoot /var/www/demineur.site/
@@ -1275,12 +1277,6 @@ service apache2 restart
 * Modification du fichier `nano /etc/apache2/sites-available/000-default.conf` :
 ```
 Redirect permanent / https://www.demineur.site/
-```
-
-* Ajout de redirections de ports :
-```
-iptables -A PREROUTING -t nat -i wlo1 -p tcp --dport 80 -j DNAT --to-destination 10.0.20.1:80
-iptables -A PREROUTING -t nat -i wlo1 -p tcp --dport 443 -j DNAT --to-destination 10.0.20.1:443
 ```
 
 ## Configuration DNSSEC
@@ -1334,7 +1330,7 @@ dnssec-signzone -o demineur.site -k demineur.site-ksk ../db.demineur.site demine
 zone "demineur.site" {
 	type master;
 file "/etc/bind/db.demineur.site.signed";
-allow-transfer { 10.0.0.254; };
+allow-transfer { 10.60.100.254; };
 };
 ```
 
