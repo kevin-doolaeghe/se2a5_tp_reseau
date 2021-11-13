@@ -992,7 +992,58 @@ vif = [ 'mac=00:16:3E:D8:97:68, bridge=IMA2a5' ]
 
 Le fichier de configuration obtenu est le suivant :
 ```
+#
+# Configuration file for the Xen instance demineur, created
+# by xen-tools 4.8 on Fri Nov 12 08:53:11 2021.
+#
 
+#
+#  Kernel + memory size
+#
+kernel      = '/boot/vmlinuz-4.19.0-9-amd64'
+extra       = 'elevator=noop'
+ramdisk     = '/boot/initrd.img-4.19.0-9-amd64'
+
+vcpus       = '1'
+memory      = '256'
+
+
+#
+#  Disk device(s).
+#
+root        = '/dev/xvda2 ro'
+disk        = [
+                  'file:/usr/local/xen/domains/demineur/disk.img,xvda2,w',
+                  'file:/usr/local/xen/domains/demineur/swap.img,xvda1,w',
+                  'phy:/dev/virtual/demineur-home,xvda3,w',
+                  'phy:/dev/virtual/demineur-var,xvda4,w',
+                  'phy:/dev/virtual/demineur-raid-1,xvda5,w',
+                  'phy:/dev/virtual/demineur-raid-2,xvda6,w',
+                  'phy:/dev/virtual/demineur-raid-3,xvda7,w'
+              ]
+
+
+#
+#  Physical volumes
+#
+
+
+#
+#  Hostname
+#
+name        = 'demineur'
+
+#
+#  Networking
+#
+vif         = [ 'mac=00:16:3E:BE:BF:2D, bridge=IMA2a5' ]
+
+#
+#  Behaviour
+#
+on_poweroff = 'destroy'
+on_reboot   = 'restart'
+on_crash    = 'restart'
 ```
 
 * Création de la VM :
@@ -1536,6 +1587,7 @@ sed -i 's/\(.*\)/\1\1/' dico
 **Tâches effectuées :**
 * Configuration des routeurs Cisco 9200 et 6509-E
   * Installation fonctionnelle, il faut juste trouver une solution pour les paquets UDP filtrés avec NAT (cf. ACL)
+  * Changement des adresses IP pour le VLAN 530 (et 532)
 * Début configuration ISR 4331
 * Création VM
   * Partitions virtuelles
