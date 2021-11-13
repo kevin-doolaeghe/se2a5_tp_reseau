@@ -990,14 +990,14 @@ mkfs.ext4 /dev/virtual/demineur-raid-3
 vif = [ 'mac=00:16:3E:D8:97:68, bridge=IMA2a5' ]
 ```
 
+Le fichier de configuration obtenu est le suivant :
+```
+
+```
+
 * Création de la VM :
 ```
 xl create /etc/xen/demineur.cfg
-```
-
-* Affichage du mot de passe de la VM :
-```
-tail -f /var/log/xen-tools/demineur.log
 ```
 
 * Affichage de l’état des VM :
@@ -1005,7 +1005,12 @@ tail -f /var/log/xen-tools/demineur.log
 xl list
 ```
 
-* Connexion à la VM :
+* Affichage du mot de passe de la VM :
+```
+tail -f /var/log/xen-tools/demineur.log
+```
+
+* Démarrage d'un shell sur la VM :
 ```
 xen console demineur
 ```
@@ -1051,11 +1056,21 @@ umount /mnt/xvda4
 PermitRootLogin yes
 ```
 
-## Configuration IPv6
+## Configuration IP
 
 * Modification du fichier `/etc/network/interfaces` :
 ```
+auto lo
+iface lo inet loopback
+
+auto eth0
 iface eth0 inet6 auto
+iface eth0 inet static
+	address 10.60.100.164/24
+	up ip address add dev eth0 193.48.57.164/32
+	up ip route add default via 10.60.100.254 src 193.48.57.164
+	down ip address del dev eth0 193.48.57.164/32
+	down ip route del default via 10.60.100.254 src 193.48.57.164
 ```
 
 ## Serveur DNS
