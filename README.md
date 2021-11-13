@@ -13,6 +13,7 @@
   * [Configuration du VLAN 530](#configuration-du-vlan-530)
   * [Configuration du VLAN 110](#configuration-du-vlan-110)
   * [Paramétrage du routage IPv4 OSPF](#paramétrage-du-routage-ipv4-ospf)
+  * [Redondance des routeurs via le protocole VRRP](#redondance-des-routeurs-via-le-protocole-vrrp)
   * [Translation NAT statique](#translation-nat-statique)
   * [Configuration de l'accès Internet de secours](#configuration-de-laccès-internet-de-secours)
   * [Paramétrage IPv6](#paramétrage-ipv6)
@@ -57,8 +58,8 @@ Groupe | Élève | Domaine | 193.48.57.160/28 | 10.60.0.0/16 | 2001:660:4401:60A
 VLAN | Nom | Réseau IPv4 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur plateforme maths/info | PA Wifi n°1 | PA Wifi n°2
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 110 | TP-NET1 | 193.48.57.160/28 / 10.60.100.0/24 (local) | 10.60.100.1 | 10.60.100.2 | 10.60.100.3 | - | - | -
-530 | INTERCO-4A | 192.168.222.32/28 | 192.168.222.34 | 192.168.222.35 | - | 192.168.222.33 | - | -
-532 | INTERCO-1B | 192.168.222.48/28 | - | - | 192.168.222.50 | 192.168.222.49 | - | -
+530 | INTERCO-4A | 192.168.222.64/28 | 192.168.222.66 | 192.168.222.67 | - | 192.168.222.65 | - | -
+532 | INTERCO-1B | 192.168.222.80/28 | - | - | 192.168.222.82 | 192.168.222.81 | - | -
 161 | BarbieGirl | 10.60.161.0/24| 10.60.161.1 | 10.60.161.2 | - | - | 10.60.161.11 | 10.60.161.12
 162 | Zelda-BOTW | 10.60.162.0/24 | 10.60.162.1 | 10.60.162.2 | - | - | 10.60.162.11 | 10.60.162.12
 163 | Humankind | 10.60.163.0/24 | 10.60.163.1 | 10.60.163.2 | - | - | 10.60.163.11 | 10.60.163.12
@@ -114,11 +115,11 @@ VLAN | Nom | Réseau IPv6 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur
 switch>enable
 switch#configure terminal
 ```
-* Configuration du nom d’hôte
+* Configuration du nom d’hôte :
 ```
 switch(config)#hostname SE2A5-R1
 ```
-* Accès SSH
+* Accès SSH :
 ```
 SE2A5-R1(config)#aaa new-model
 SE2A5-R1(config)#username admin privilege 15 secret glopglop
@@ -128,25 +129,25 @@ SE2A5-R1(config)#line vty 0 15
 SE2A5-R1(config-line)#transport input ssh
 SE2A5-R1(config-line)#exit
 ```
-* Accès console
+* Accès console :
 ```
 SE2A5-R1(config)#line console 0
 SE2A5-R1(config-line)#password glopglop
 SE2A5-R1(config-line)#login authentification AAA_CONSOLE
 SE2A5-R1(config-line)#exit
 ```
-* Sécurisation des accès
+* Sécurisation des accès :
 ```
 SE2A5-R1(config)#service password-encryption
 SE2A5-R1(config)#enable secret glopglop
 SE2A5-R1(config)#banner motd #Restricted Access#
 ```
-* Activer le routage
+* Activer le routage :
 ```
 SE2A5-R1(config)#ip routing
 SE2A5-R1(config)#ipv6 unicast-routing
 ```
-* Activer VRRP
+* Activer VRRP :
 ```
 SE2A5-R1(config)#license boot level network-advantage
 SE2A5-R1(config)#fhrp version vrrp v3
@@ -158,11 +159,11 @@ SE2A5-R1(config)#fhrp version vrrp v3
 switch>enable
 switch#configure terminal
 ```
-* Configuration du nom d’hôte
+* Configuration du nom d’hôte :
 ```
 switch(config)#hostname SE2A5-R2
 ```
-* Accès SSH
+* Accès SSH :
 ```
 SE2A5-R2(config)#aaa new-model
 SE2A5-R2(config)#username admin privilege 15 secret glopglop
@@ -172,25 +173,25 @@ SE2A5-R2(config)#line vty 0 15
 SE2A5-R2(config-line)#transport input ssh
 SE2A5-R2(config-line)#exit
 ```
-* Accès console
+* Accès console :
 ```
 SE2A5-R2(config)#line console 0
 SE2A5-R2(config-line)#password glopglop
 SE2A5-R2(config-line)#login authentification AAA_CONSOLE
 SE2A5-R2(config-line)#exit
 ```
-* Sécurisation des accès
+* Sécurisation des accès :
 ```
 SE2A5-R2(config)#service password-encryption
 SE2A5-R2(config)#enable secret glopglop
 SE2A5-R2(config)#banner motd #Restricted Access#
 ```
-* Activer le routage
+* Activer le routage :
 ```
 SE2A5-R2(config)#ip routing
 SE2A5-R2(config)#ipv6 unicast-routing
 ```
-* Activer VRRP
+* Activer VRRP :
 ```
 SE2A5-R2(config)#license boot level network-advantage
 SE2A5-R2(config)#fhrp version vrrp v3
@@ -198,9 +199,11 @@ SE2A5-R2(config)#fhrp version vrrp v3
 
 ## Configuration du VLAN 530
 
+Le VLAN 530 permet l'interconnexion avec les routeurs de la plateforme maths/info.
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* VLAN 530
+* VLAN 530 :
 ```
 SE2A5-R1(config)#vlan 530
 SE2A5-R1(config-vlan)#name INTERCO-4A
@@ -211,7 +214,7 @@ SE2A5-R1(config-if)#ip address 192.168.222.66 255.255.255.248
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
-* Interface d’interconnexion
+* Interface d’interconnexion :
 ```
 SE2A5-R1(config)#interface t6/5
 SE2A5-R1(config-if)#switchport
@@ -223,7 +226,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* VLAN 530
+* VLAN 530 :
 ```
 SE2A5-R2(config)#vlan 530
 SE2A5-R2(config-vlan)#name INTERCO-4A
@@ -234,7 +237,7 @@ SE2A5-R2(config-if)#ip address 192.168.222.67 255.255.255.248
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
-* Interface d’interconnexion
+* Interface d’interconnexion :
 ```
 SE2A5-R2(config)#interface g1/0/1
 SE2A5-R2(config-if)#switchport
@@ -246,9 +249,12 @@ SE2A5-R2(config-if)#exit
 
 ## Configuration du VLAN 110
 
+Le VLAN 110 permet un accès à un réseau IPv4 routé.  
+Le réseau privé `10.60.0.0/16` est également utilisé sur ce réseau pour les points d'accès Wifi et les configurations IP des routeurs.
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* VLAN 110
+* VLAN 110 :
 ```
 SE2A5-R1(config)#vlan 110
 SE2A5-R1(config-vlan)#name TP-NET1
@@ -259,7 +265,7 @@ SE2A5-R1(config-if)#ip address 10.60.100.1 255.255.255.0
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
-* Interface vers serveur Capbreton
+* Interface vers serveur Capbreton :
 ```
 SE2A5-R1(config)#interface t6/4
 SE2A5-R1(config-if)#switchport
@@ -271,7 +277,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* VLAN 110
+* VLAN 110 :
 ```
 SE2A5-R2(config)#vlan 110
 SE2A5-R2(config-vlan)#name TP-NET1
@@ -282,7 +288,7 @@ SE2A5-R2(config-if)#ip address 10.60.100.2 255.255.255.0
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
-* Interface vers serveur Capbreton
+* Interface vers serveur Capbreton :
 ```
 SE2A5-R2(config)#interface t1/1/1
 SE2A5-R2(config-if)#switchport
@@ -294,9 +300,11 @@ SE2A5-R2(config-if)#exit
 
 ## Paramétrage du routage IPv4 OSPF
 
+Le protocole de routage OSPF est utilisé sur le VLAN 530 afin de déterminer quel routeur aura le rôle de maître pour le routage des paquets et l'annonce des routes.
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* Routage IPv4 - Protocole OPSF
+* Routage IPv4 - Protocole OPSF :
 ```
 SE2A5-R1(config)#router ospf 1
 SE2A5-R1(config-router)#router-id 192.168.222.66
@@ -311,7 +319,7 @@ SE2A5-R1(config-router)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* Routage IPv4 - Protocole OPSF
+* Routage IPv4 - Protocole OPSF :
 ```
 SE2A5-R2(config)#router ospf 1
 SE2A5-R2(config-router)#router-id 192.168.222.67
@@ -323,12 +331,16 @@ SE2A5-R2(config-router)#network 192.168.222.64 0.0.0.7 area 10
 SE2A5-R2(config-router)#default-information originate
 SE2A5-R2(config-router)#exit
 ```
+Le routeur Cisco Catalyst 9200 a une métrique plus élevée afin d'être le routeur secondaire sur le réseau.
 
 ## Redondance des routeurs via le protocole VRRP
 
+Le protocole de redondance VRRP est utilisé pour déterminer quel routeur doit avoir le rôle de maître sur le VLAN 110.  
+Le routeur Cisco Catalyst 6509-E a une métrique inférieure à celle du Cisco Catalyst 9200 afin qu'il soit le routeur maître sur le réseau. 
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* VLAN 110
+* VLAN 110 :
 ```
 SE2A5-R1(config)#interface vlan 110
 SE2A5-R1(config-if)#vrrp 10 ip 10.60.100.254
@@ -339,7 +351,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* VLAN 110
+* VLAN 110 :
 ```
 SE2A5-R2(config)#interface vlan 110
 SE2A5-R2(config-if)#vrrp 10 address-family ipv4
@@ -350,12 +362,15 @@ SE2A5-R2(config-if-vrrp)#preempt
 SE2A5-R2(config-if-vrrp)#exit
 SE2A5-R2(config-if)#exit
 ```
+La version 3 du protocole VRRP n'est pas disponible sur le routeur Cisco Catalyst 6509-E.  
+Cependant, le routeur Cisco Catalyst 9200 utilise cette version par défaut.  
+La commande `vrrpv2` est donc nécessaire afin d'utiliser la version 2 du protocole VRRP.
 
 ## Translation NAT statique
 
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* Configuration NAT
+* Configuration NAT :
 ```
 SE2A5-R1(config)#interface vlan 530
 SE2A5-R1(config-if)#ip nat outside
@@ -365,26 +380,17 @@ SE2A5-R1(config-if)#ip nat inside
 SE2A5-R1(config-if)#exit
 SE2A5-R1(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 /28
 ```
-* Redistribution via OSPF à partir de l'interface Loopback 0
+* Redistribution via OSPF à partir de l'interface Loopback 0 :
 ```
 SE2A5-R1(config)#interface loopback 0
 SE2A5-R1(config-if)#ip address 193.48.57.174 255.255.255.240
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
-
-La solution avec NAT ne permet pas de router les paquets pour les connexions TCP.
-Les VM doient en effet avoir une configuration IP sur le réseau 193.48.57.160/28.
-
-La solution avec les routes statiques demande que les VM aient une configuration IP sur le réseau 10.60.100.160/28.
-
-En attente d'une solution de contournement.
-Ou ajouter les routes statiques comme pour le Cisco Catalyst 9200.
-
-Les VM auront une configuration IP avec l'adresse locale et celle routée.
+Les VM doivent avoir une configuration IP sur le réseau `193.48.57.160/28`.  
 La communication fonctionne désormais sauf pour les paquets UDP qui sont filtrés.
 On choisit de désactiver l'interface `l0` pour économiser une adresse routée.
-A la place, on passe par l'interface `null0`.
+A la place, on passe par l'interface `null0` :
 
 ```
 SE2A5-R1(config)#interface loopback 0
@@ -392,10 +398,11 @@ SE2A5-R1(config-if)#shutdown
 SE2A5-R1(config-if)#exit
 SE2A5-R1(config)#ip route 193.48.57.160 255.255.255.240 null0
 ```
+Une solution de contournement serait d'utiliser des routes statiques comme pour le routeur Cisco Catalyst 9200.
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* Configuration NAT
+* Configuration NAT :
 ```
 SE2A5-R2(config)#interface vlan 530
 SE2A5-R2(config-if)#ip nat outside
@@ -405,8 +412,7 @@ SE2A5-R2(config-if)#ip nat inside
 SE2A5-R2(config-if)#exit
 SE2A5-R2(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 /28
 ```
-
-Comme le Cisco Catalyst 9200 ne prend pas en charge NAT, nous passons par des routes statiques.
+Comme le Cisco Catalyst 9200 ne prend pas en charge le protocole NAT, nous passons par des routes statiques.
 
 ```
 SE2A5-R2(config)#ip route 193.48.57.161 255.255.255.255 10.60.100.161
@@ -423,12 +429,17 @@ SE2A5-R2(config)#ip route 193.48.57.171 255.255.255.255 10.60.100.171
 SE2A5-R2(config)#ip route 193.48.57.172 255.255.255.255 10.60.100.172
 SE2A5-R2(config)#ip route 193.48.57.173 255.255.255.255 10.60.100.173
 ```
+Cette solution est fonctionnelle mais impose que les VM aient une configuration IP sur le réseau `10.60.100.160/28`.  
+Les VM devront donc avoir une configuration IP avec l'adresse locale et celle routée.
 
 ## Configuration de l'accès Internet de secours
 
+La liaison entre les routeurs déjà présents et le routeur Cisco ISR 4331 est configurée en mode trunk (802.1q).  
+On ajoute une règle SLA afin de tester la réponse d'un routeur de l'université. Si le routeur ne répond pas, on décrémente la métrique des routeurs sur le VLAN 110 afin que le routeur ISR 4331 devienne prioritaire.
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* Interface vers Cisco ISR 4331
+* Interface vers Cisco ISR 4331 :
 ```
 SE2A5-R1(config)#interface t5/5
 SE2A5-R1(config-if)#switchport
@@ -438,7 +449,7 @@ SE2A5-R1(config-if)#switchport trunk allowed vlan 110
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
-* SLA
+* SLA :
 ```
 SE2A5-R1(config)#ip sla 1
 SE2A5-R1(config-ip-sla)#icmp-echo 192.168.44.1
@@ -454,7 +465,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* Interface vers Cisco ISR 4331
+* Interface vers Cisco ISR 4331 :
 ```
 SE2A5-R2(config)#interface g1/0/2
 SE2A5-R2(config-if)#switchport
@@ -464,7 +475,7 @@ SE2A5-R2(config-if)#switchport trunk allowed vlan 110
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
-* SLA
+* SLA :
 ```
 SE2A5-R2(config)#ip sla 1
 SE2A5-R2(config-ip-sla)#icmp-echo 192.168.44.1
@@ -488,11 +499,11 @@ SE2A5-R2(config-if)#exit
 switch>enable
 switch#configure terminal
 ```
-* Configuration du nom d’hôte
+* Configuration du nom d’hôte :
 ```
 switch(config)#hostname SE2A5-R3
 ```
-* Accès SSH
+* Accès SSH :
 ```
 SE2A5-R3(config)#aaa new-model
 SE2A5-R3(config)#username admin privilege 15 secret glopglop
@@ -502,25 +513,25 @@ SE2A5-R3(config)#line vty 0 15
 SE2A5-R3(config-line)#transport input ssh
 SE2A5-R3(config-line)#exit
 ```
-* Accès console
+* Accès console :
 ```
 SE2A5-R3(config)#line console 0
 SE2A5-R3(config-line)#password glopglop
 SE2A5-R3(config-line)#login authentification AAA_CONSOLE
 SE2A5-R3(config-line)#exit
 ```
-* Sécurisation des accès
+* Sécurisation des accès :
 ```
 SE2A5-R3(config)#service password-encryption
 SE2A5-R3(config)#enable secret glopglop
 SE2A5-R3(config)#banner motd #Restricted Access#
 ```
-* Activer le routage
+* Activer le routage :
 ```
 SE2A5-R3(config)#ip routing
 SE2A5-R3(config)#ipv6 unicast-routing
 ```
-* Activer VRRP
+* Activer VRRP :
 ```
 SE2A5-R3(config)#license boot level network-advantage
 SE2A5-R3(config)#fhrp version vrrp v3
@@ -528,14 +539,17 @@ SE2A5-R3(config)#fhrp version vrrp v3
 
 #### &ensp; &ensp; **Pont vers le VLAN 532 :**
 
-* Bridge VLAN 532
+Le routeur Cisco ISR 532 ne permet pas la configuration des VLAN. Une alternative à ce problème est de passer par des ponts (BDI) pour remplacer les VLAN 532 et 110.  
+Le VLAN 532 permet l'interconnexion avec l'accès Internet de secours.
+
+* Bridge VLAN 532 :
 ```
 SE2A5-R3(config)#interface bdi 532
 SE2A5-R3(config-if)#ip address 192.168.222.50 255.255.255.248
 SE2A5-R3(config-if)#no shutdown
 SE2A5-R3(config-if)#exit
 ```
-* Interface d’interconnexion
+* Interface d’interconnexion :
 ```
 SE2A5-R3(config)#interface g0/0/0
 SE2A5-R3(config-if)#description INTERCO-1B
@@ -549,7 +563,7 @@ SE2A5-R3(config-if)#exit
 
 #### &ensp; &ensp; **Pont vers le VLAN 110 :**
 
-*  Bridge VLAN 110
+*  Bridge VLAN 110 :
 ```
 SE2A5-R3(config)#interface bdi 110
 SE2A5-R3(config-if)#ip address 10.60.100.3 255.255.255.0
@@ -559,7 +573,7 @@ SE2A5-R3(config-if)#vrrp 10 priority 90
 SE2A5-R3(config-if)#no shutdown
 SE2A5-R3(config-if)#exit
 ```
-* Interface vers Cisco Catalyst 6509-E
+* Interface vers Cisco Catalyst 6509-E :
 ```
 SE2A5-R3(config)#interface g0/0/3
 SE2A5-R3(config-if)#description TP-NET1
@@ -571,7 +585,7 @@ SE2A5-R3(config-if-srv)#bridge-domain 110
 SE2A5-R3(config-if-srv)#exit
 SE2A5-R3(config-if)#exit
 ```
-* Interface vers Cisco Catalyst 9200
+* Interface vers Cisco Catalyst 9200 :
 ```
 SE2A5-R3(config)#interface g0/0/1
 SE2A5-R3(config-if)#description TP-NET1
@@ -586,7 +600,9 @@ SE2A5-R3(config-if)#exit
 
 #### &ensp; &ensp; **Translation NAT dynamique**
 
-* Configuration NAT
+On configure une mascarade sur l'accès Internet de secours.
+
+* Configuration NAT :
 ```
 SE2A5-R3(config)#interface vlan 532
 SE2A5-R3(config-if)#ip nat outside
@@ -602,9 +618,11 @@ SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160
 
 ## Paramétrage IPv6
 
+Le protocole de routage utilisé pour IPv6 est RIPv6. Le routeur Cisco Catalyst 6509-E possède une métrique plus faible que le routeur Cisco Catalyst 9200 lui permettant de devenir prioritaire pour le routage IPv6.
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* Routage IPv6 - Protocole RIPv6
+* Routage IPv6 - Protocole RIPv6 :
 ```
 SE2A5-R1(config)#ipv6 router rip tpima2a5
 SE2A5-R1(config-router)#redistribute connected metric 1
@@ -612,14 +630,14 @@ SE2A5-R1(config-router)#redistribute rip 1 metric 1
 SE2A5-R1(config-router)#redistribute static metric 1
 SE2A5-R1(config-router)#exit
 ```
-* VLAN 530
+* VLAN 530 :
 ```
 SE2A5-R1(config)#interface vlan 530
 SE2A5-R1(config-if)#ipv6 address fe80::2 link-local
 SE2A5-R1(config-if)#ipv6 rip tpima2a5 enable
 SE2A5-R1(config-if)#ipv6 enable
 ```
-* VLAN 110
+* VLAN 110 :
 ```
 SE2A5-R1(config)#interface vlan 110
 SE2A5-R1(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
@@ -631,7 +649,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* Routage IPv6 - Protocole RIPv6
+* Routage IPv6 - Protocole RIPv6 :
 ```
 SE2A5-R2(config)#ipv6 router rip tpima2a5
 SE2A5-R2(config-router)#redistribute connected metric 2
@@ -639,14 +657,14 @@ SE2A5-R2(config-router)#redistribute rip 1 metric 2
 SE2A5-R2(config-router)#redistribute static metric 2
 SE2A5-R2(config-router)#exit
 ```
-* VLAN 530
+* VLAN 530 :
 ```
 SE2A5-R2(config)#interface vlan 530
 SE2A5-R2(config-if)#ipv6 address fe80::3 link-local
 SE2A5-R2(config-if)#ipv6 rip tpima2a5 enable
 SE2A5-R2(config-if)#ipv6 enable
 ```
-* VLAN 110
+* VLAN 110 :
 ```
 SE2A5-R2(config)#interface vlan 110
 SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
@@ -658,13 +676,13 @@ SE2A5-R2(config-if)#exit
 
 ### &ensp; &rarr; **Cisco ISR 4331**
 
-* Bridge VLAN 532
+* Bridge VLAN 532 :
 ```
 SE2A5-R3(config)#interface bdi 532
 SE2A5-R3(config-if)#ipv6 enable
 SE2A5-R3(config-if)#exit
 ```
-*  Bridge VLAN 110
+*  Bridge VLAN 110 :
 ```
 SE2A5-R3(config)#interface bdi 110
 SE2A5-R3(config-if)#ipv6 enable
@@ -673,9 +691,11 @@ SE2A5-R3(config-if)#exit
 
 ## Configuration du VLAN 164
 
+Le réseau privé utilisé principalement pour les points d'accès Wifi est `10.60.164.0/24`. Il s'agit du VLAN 164.
+
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* VLAN 164
+* VLAN 164 :
 ```
 SE2A5-R1(config)#vlan 164
 SE2A5-R1(config-vlan)#name DEMINEUR
@@ -703,7 +723,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* VLAN 164
+* VLAN 164 :
 ```
 SE2A5-R2(config)#vlan 164
 SE2A5-R2(config-vlan)#name DEMINEUR
@@ -734,7 +754,7 @@ SE2A5-R2(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
-* DHCP
+* DHCP :
 ```
  SE2A5-R1(config)#ip dhcp pool DEMINEUR
  SE2A5-R1(dhcp-config)#dns 193.48.57.164
@@ -744,7 +764,7 @@ SE2A5-R2(config-if)#exit
  SE2A5-R1(config)#ip dhcp excluded-address 10.60.114.0 10.60.114.99
  SE2A5-R1(config)#ip dhcp excluded-address 10.60.114.150 10.60.114.255
 ```
-* Interface vers le point d'accès Wifi
+* Interface vers le point d'accès Wifi :
 ```
 SE2A5-R1(config)#interface t5/4
 SE2A5-R1(config-if)#switchport
@@ -756,7 +776,7 @@ SE2A5-R1(config-if)#exit
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* DHCP
+* DHCP :
 ```
 SE2A5-R2(config)#ip dhcp pool DEMINEUR
 SE2A5-R2(dhcp-config)#dns 193.48.57.164
@@ -766,7 +786,7 @@ SE2A5-R2(dhcp-config)#exit
 SE2A5-R2(config)#ip dhcp excluded-address 10.60.114.0 10.60.114.149
 SE2A5-R2(config)#ip dhcp excluded-address 10.60.114.200 10.60.114.255
 ```
-* Interface vers le point d'accès Wifi
+* Interface vers le point d'accès Wifi :
 ```
 SE2A5-R2(config)#interface g1/0/2
 SE2A5-R2(config-if)#switchport
@@ -784,11 +804,11 @@ SE2A5-R2(config-if)#exit
 ap>enable
 ap#configure terminal
 ```
-* Configuration du nom d’hôte
+* Configuration du nom d’hôte :
 ```
 ap(config)#hostname SE2A5-AP1
 ```
-* Accès SSH
+* Accès SSH :
 ```
 SE2A5-AP1(config)#aaa new-model
 SE2A5-AP1(config)#username admin privilege 15 secret glopglop
@@ -799,14 +819,14 @@ SE2A5-AP1(config)#line vty 0 15
 SE2A5-AP1(config-line)#transport input ssh
 SE2A5-AP1(config-line)#exit
 ```
-* Accès console
+* Accès console :
 ```
 SE2A5-AP1(config)#line console 0
 SE2A5-AP1(config-line)#password glopglop
 SE2A5-AP1(config-line)#login authentification AAA_CONSOLE
 SE2A5-AP1(config-line)#exit
 ```
-* Sécurisation des accès
+* Sécurisation des accès :
 ```
 SE2A5-AP1(config)#service password-encryption
 SE2A5-AP1(config)#enable secret glopglop
@@ -815,7 +835,7 @@ SE2A5-AP1(config)#banner motd #Restricted Access#
 
 #### **VLAN 164 :**
 
-* VLAN 164
+* VLAN 164 :
 ```
 SE2A5-AP1(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
 SE2A5-AP1(config)#radius-server host 193.48.57.164 auth-port 1812 acct-port 1813 key glopglop
@@ -853,11 +873,11 @@ SE2A5-AP1(config-if)#exit
 ap>enable
 ap#configure terminal
 ```
-* Configuration du nom d’hôte
+* Configuration du nom d’hôte :
 ```
 ap(config)#hostname SE2A5-AP2
 ```
-* Accès SSH
+* Accès SSH :
 ```
 SE2A5-AP2(config)#aaa new-model
 SE2A5-AP2(config)#username admin privilege 15 secret glopglop
@@ -868,14 +888,14 @@ SE2A5-AP2(config)#line vty 0 15
 SE2A5-AP2(config-line)#transport input ssh
 SE2A5-AP2(config-line)#exit
 ```
-* Accès console
+* Accès console :
 ```
 SE2A5-AP2(config)#line console 0
 SE2A5-AP2(config-line)#password glopglop
 SE2A5-AP2(config-line)#login authentification AAA_CONSOLE
 SE2A5-AP2(config-line)#exit
 ```
-* Sécurisation des accès
+* Sécurisation des accès :
 ```
 SE2A5-AP2(config)#service password-encryption
 SE2A5-AP2(config)#enable secret glopglop
@@ -884,7 +904,7 @@ SE2A5-AP2(config)#banner motd #Restricted Access#
 
 #### &ensp; &ensp; **VLAN 164 :**
 
-* VLAN 164
+* VLAN 164 :
 ```
 SE2A5-AP2(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
 SE2A5-AP2(config)#radius-server host 193.48.57.164 auth-port 1812 acct-port 1813 key glopglop
@@ -932,9 +952,12 @@ xen-create-image --hostname=demineur --ip=10.60.100.164 --gateway=10.60.100.254 
 
 * Création des partitions virtuelles :
 ```
-vgcreate storage /dev/sda7
-lvcreate -L10G -n demineur-home storage
-lvcreate -L10G -n demineur-var storage
+vgcreate virtual /dev/sda7
+lvcreate -L10G -n demineur-home virtual
+lvcreate -L10G -n demineur-var virtual
+lvcreate -L10G -n demineur-raid-1 virtual
+lvcreate -L10G -n demineur-raid-2 virtual
+lvcreate -L10G -n demineur-raid-3 virtual
 ```
 
 * Vérification des partitions :
@@ -945,16 +968,22 @@ lsblk
 
 * Formatage de la partition virtuelle :
 ```
-mkfs.ext4 /dev/storage/demineur-home
-mkfs.ext4 /dev/storage/demineur-var
+mkfs.ext4 /dev/virtual/demineur-home
+mkfs.ext4 /dev/virtual/demineur-var
+mkfs.ext4 /dev/virtual/demineur-raid-1
+mkfs.ext4 /dev/virtual/demineur-raid-2
+mkfs.ext4 /dev/virtual/demineur-raid-3
 ```
 
 * Modification de `/etc/xen/demineur.cfg` :
 
 &ensp; &ensp; &rarr; Ajout des partitions virtuelles dans la variable `disk` :
 ```
-'phy:/dev/storage/demineur-home,xvda3,w',
-'phy:/dev/storage/demineur-var,xvda4,w'
+'phy:/dev/virtual/demineur-home,xvda3,w',
+'phy:/dev/virtual/demineur-var,xvda4,w',
+'phy:/dev/virtual/demineur-raid-1,xvda4,w',
+'phy:/dev/virtual/demineur-raid-2,xvda4,w',
+'phy:/dev/virtual/demineur-raid-3,xvda4,w',
 ```
 &ensp; &ensp; &rarr; Ajout du pont dans dans la variable `vif` :
 ```
@@ -964,30 +993,6 @@ vif = [ 'mac=00:16:3E:D8:97:68, bridge=IMA2a5' ]
 * Création de la VM :
 ```
 xl create /etc/xen/demineur.cfg
-```
-
-* Montage des partitions virtuelles :
-```
-mount /dev/xvda3 /mnt/xvda3
-mount /dev/xvda4 /mnt/xvda4
-```
-
-* Copie des données des répertoires `/home` et `/var` :
-```
-cp -r /home /mnt/xvda3
-cp -r /var /mnt/xvda4
-```
-
-* Démontage des partitions virtuelles :
-```
-umount /mnt/xvda3
-umount /mnt/xvda4
-```
-
-* Ajout des partitions au fichier `/etc/fstab` :
-```
-/dev/xvda3 /home /ext4 default 0 2
-/dev/xvda4 /var /ext4 default 0 2
 ```
 
 * Affichage du mot de passe de la VM :
@@ -1013,6 +1018,30 @@ passwd root
 * Mise à jour de la liste des paquets :
 ```
 apt update
+```
+
+* Montage des partitions virtuelles :
+```
+mount /dev/xvda3 /mnt/xvda3
+mount /dev/xvda4 /mnt/xvda4
+```
+
+* Copie des données des répertoires `/home` et `/var` :
+```
+mv /home/* /mnt/xvda3
+mv /var/* /mnt/xvda4
+```
+
+* Démontage des partitions virtuelles :
+```
+umount /mnt/xvda3
+umount /mnt/xvda4
+```
+
+* Ajout des partitions au fichier `/etc/fstab` :
+```
+/dev/xvda3 /home ext4 defaults 0 2
+/dev/xvda4 /var ext4 defaults 0 2
 ```
 
 ## Serveur SSH
@@ -1487,18 +1516,29 @@ sed -i 's/\(.*\)/\1\1/' dico
 * Configuration des interfaces vers le routeur Cisco ISR 4331 et les points d'accès
 * Le routeur Cisco ISR 4331 sera connecté au commutateur SR52-pinfo-1 sur l'interface G0/39 (l'interface a été configuré pour commuter le VLAN 532)
 
-## Mercredi 03/11/2021 14h-18h
+## Vendredi 12/11/2021 8h-12h
 
 **Tâches effectuées :**
+* Configuration des routeurs Cisco 9200 et 6509-E
+  * Installation fonctionnelle, il faut juste trouver une solution pour les paquets UDP filtrés avec NAT (cf. ACL)
+* Début configuration ISR 4331
+* Création VM
+  * Partitions virtuelles
+  * LAMP
+  * DNS
 
-## Vendredi 05/11/2021 08h-12h
-
-**Tâches effectuées :**
-
-## Vendredi 12/11/2021 08h-12h
+## Jeudi 18/11/2021 08h-10h
 
 **Tâches effectuées :**
 
 ## Vendredi 19/11/2021 08h-12h
+
+**Tâches effectuées :**
+
+## Lundi 29/11/2021 08h-12h
+
+**Tâches effectuées :**
+
+## Vendredi 03/12/2021 08h-10h
 
 **Tâches effectuées :**
