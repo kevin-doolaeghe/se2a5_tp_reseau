@@ -1078,20 +1078,17 @@ apt update
 
 * Montage des partitions virtuelles :
 ```
-mount /dev/xvda3 /mnt/xvda3
-mount /dev/xvda4 /mnt/xvda4
+mount /dev/xvda4 /mnt
 ```
 
 * Copie des données des répertoires `/home` et `/var` :
 ```
-mv /home/* /mnt/xvda3
-mv /var/* /mnt/xvda4
+cp -r /var/* /mnt
 ```
 
 * Démontage des partitions virtuelles :
 ```
-umount /mnt/xvda3
-umount /mnt/xvda4
+umount /mnt
 ```
 
 * Ajout des partitions au fichier `/etc/fstab` :
