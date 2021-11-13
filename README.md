@@ -1269,14 +1269,14 @@ a2ensite 000-demineur.site-ssl
 ServerName demineur.site
 ```
 
+* Modification du fichier `nano /etc/apache2/sites-available/000-default.conf` :
+```
+Redirect permanent / https://ns.demineur.site/
+```
+
 * Redémarrage du service `apache2` :
 ```
 service apache2 restart
-```
-
-* Modification du fichier `nano /etc/apache2/sites-available/000-default.conf` :
-```
-Redirect permanent / https://www.demineur.site/
 ```
 
 ## Configuration DNSSEC
