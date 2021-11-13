@@ -1217,8 +1217,7 @@ mv demineur.site.key /etc/ssl/private
 mv demineur.site.csr /etc/ssl/certs
 ```
 
-Faire signer le certificat `demineur.site.csr` par une [https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) et placer le nouveau certificat (.crt) dans le répertoire `/etc/ssl/certs`.
-Télécharger également le certificat de Gandi nommé `GandiStandardSSLCA2.pem` et le placer dans le même dossier.
+Faire signer le certificat `demineur.site.csr` par l'organisme [Gandi](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) et placer le nouveau certificat (.crt) dans le répertoire `/etc/ssl/certs`. Télécharger également le certificat nommé `GandiStandardSSLCA2.pem` et le placer dans le même dossier.
 
 * Installation du paquet `apache2` :
 ```
