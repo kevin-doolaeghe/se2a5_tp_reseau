@@ -945,7 +945,7 @@ ssh capbreton.plil.info
 
 * Création d’une image pour la VM :
 ```
-xen-create-image --hostname=demineur --ip=10.60.100.164 --gateway=10.60.100.254 --netmask=255.255.255.0 --dir=/usr/local/xen --password=pasglop --dist=buster
+xen-create-image --hostname=demineur --ip=10.60.100.164 --gateway=10.60.100.254 --netmask=255.255.255.0 --dir=/usr/local/xen --password=glopglop --dist=buster
 ```
 &ensp; &ensp; &rarr; Dossier de stockage des données de la VM : `/usr/local/xen/domains/demineur`  
 &ensp; &ensp; &rarr; Fichier de configuration de la VM : `/etc/xen/demineur.cfg`
