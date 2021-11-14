@@ -955,9 +955,9 @@ xen-create-image --hostname=demineur --ip=10.60.100.164 --gateway=10.60.100.254 
 vgcreate virtual /dev/sda7
 lvcreate -L10G -n demineur-home virtual
 lvcreate -L10G -n demineur-var virtual
-lvcreate -L10G -n demineur-raid-1 virtual
-lvcreate -L10G -n demineur-raid-2 virtual
-lvcreate -L10G -n demineur-raid-3 virtual
+lvcreate -L1G -n demineur-raid-1 virtual
+lvcreate -L1G -n demineur-raid-2 virtual
+lvcreate -L1G -n demineur-raid-3 virtual
 ```
 
 * Vérification des partitions :
@@ -981,9 +981,9 @@ mkfs.ext4 /dev/virtual/demineur-raid-3
 ```
 'phy:/dev/virtual/demineur-home,xvda3,w',
 'phy:/dev/virtual/demineur-var,xvda4,w',
-'phy:/dev/virtual/demineur-raid-1,xvda4,w',
-'phy:/dev/virtual/demineur-raid-2,xvda4,w',
-'phy:/dev/virtual/demineur-raid-3,xvda4,w',
+'phy:/dev/virtual/demineur-raid-1,xvda5,w',
+'phy:/dev/virtual/demineur-raid-2,xvda6,w',
+'phy:/dev/virtual/demineur-raid-3,xvda7,w'
 ```
 &ensp; &ensp; &rarr; Ajout du pont dans dans la variable `vif` :
 ```
@@ -1339,6 +1339,19 @@ Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dan
 
 ```
 dnssec-verify -o demineur.site db.demineur.site.signed
+```
+
+## Sécurisation des données
+
+Afin de sécuriser les données, on configure un RAID5 avec les trois partition LVM de 1Go créées précédemment.
+
+
+
+## Chiffrement des données
+
+* Installation des paquets nécessaires :
+```
+apt install lvm2 cryptsetup
 ```
 
 # Tests d'intrusion
