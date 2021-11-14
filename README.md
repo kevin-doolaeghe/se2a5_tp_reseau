@@ -1335,6 +1335,11 @@ dnssec-verify -o demineur.site db.demineur.site.signed
 
 Afin de sécuriser les données, on configure un RAID5 avec les trois partition LVM de 1Go créées précédemment.
 
+* Installer les paquets nécessaires :
+```
+apt install mdadm
+```
+
 * Créer les partitions virtuelles pour le RAID :
 ```
 lvcreate -L1G -n demineur-raid-1 virtual
