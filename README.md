@@ -1387,10 +1387,10 @@ apt install lvm2 cryptsetup
 ```
 fdisk /dev/sda
 ```
-&ensp; &rarr; entrer `n` pour créer une nouvelle partition
-&ensp; &rarr; entrer le numéro de la partition
-&ensp; &rarr; début de la partition : laisser par défaut
-&ensp; &rarr; fin de la partition : laisser par défaut (prend tout l'espace disponible)
+&ensp; &rarr; entrer `n` pour créer une nouvelle partition  
+&ensp; &rarr; entrer le numéro de la partition  
+&ensp; &rarr; début de la partition : laisser par défaut  
+&ensp; &rarr; fin de la partition : laisser par défaut (prend tout l'espace disponible)  
 &ensp; &rarr; `w` pour ecrire
 
 * Informer le kernel que la table des partitions a changé :
