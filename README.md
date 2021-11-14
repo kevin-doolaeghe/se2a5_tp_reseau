@@ -22,10 +22,12 @@
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
   * [Création de la machine virtuelle](#création-de-la-machine-virtuelle)
   * [Serveur SSH](#serveur-ssh)
-  * [Configuration IPv6](#configuration-ipv6)
+  * [Configuration IP](#configuration-ip)
   * [Serveur DNS](#serveur-dns)
   * [Serveur Web](#serveur-web)
   * [Configuration DNSSEC](#configuration-dnssec)
+  * [Sécurisation des données](#sécurisation-des-données)
+  * [Chiffrement des données](#chiffrement-des-données)
 * [Tests d'intrusion](#tests-dintrusion)
   * [Cassage de clef WEP d'un point d'accès Wifi](#cassage-de-clef-wep-dun-point-daccès-wifi)
   * [Cassage du mot de passe WPA-PSK par force brute](#cassage-du-mot-de-passe-wpa-psk-par-force-brute)
@@ -955,9 +957,6 @@ xen-create-image --hostname=demineur --ip=10.60.100.164 --gateway=10.60.100.254 
 vgcreate virtual /dev/sda7
 lvcreate -L10G -n demineur-home virtual
 lvcreate -L10G -n demineur-var virtual
-lvcreate -L1G -n demineur-raid-1 virtual
-lvcreate -L1G -n demineur-raid-2 virtual
-lvcreate -L1G -n demineur-raid-3 virtual
 ```
 
 * Vérification des partitions :
@@ -970,9 +969,6 @@ lsblk
 ```
 mkfs.ext4 /dev/virtual/demineur-home
 mkfs.ext4 /dev/virtual/demineur-var
-mkfs.ext4 /dev/virtual/demineur-raid-1
-mkfs.ext4 /dev/virtual/demineur-raid-2
-mkfs.ext4 /dev/virtual/demineur-raid-3
 ```
 
 * Modification de `/etc/xen/demineur.cfg` :
@@ -980,10 +976,7 @@ mkfs.ext4 /dev/virtual/demineur-raid-3
 &ensp; &ensp; &rarr; Ajout des partitions virtuelles dans la variable `disk` :
 ```
 'phy:/dev/virtual/demineur-home,xvda3,w',
-'phy:/dev/virtual/demineur-var,xvda4,w',
-'phy:/dev/virtual/demineur-raid-1,xvda5,w',
-'phy:/dev/virtual/demineur-raid-2,xvda6,w',
-'phy:/dev/virtual/demineur-raid-3,xvda7,w'
+'phy:/dev/virtual/demineur-var,xvda4,w'
 ```
 &ensp; &ensp; &rarr; Ajout du pont dans dans la variable `vif` :
 ```
@@ -1016,10 +1009,7 @@ disk        = [
                   'file:/usr/local/xen/domains/demineur/disk.img,xvda2,w',
                   'file:/usr/local/xen/domains/demineur/swap.img,xvda1,w',
                   'phy:/dev/virtual/demineur-home,xvda3,w',
-                  'phy:/dev/virtual/demineur-var,xvda4,w',
-                  'phy:/dev/virtual/demineur-raid-1,xvda5,w',
-                  'phy:/dev/virtual/demineur-raid-2,xvda6,w',
-                  'phy:/dev/virtual/demineur-raid-3,xvda7,w'
+                  'phy:/dev/virtual/demineur-var,xvda4,w'
               ]
 
 
@@ -1217,7 +1207,7 @@ mv demineur.site.key /etc/ssl/private
 mv demineur.site.csr /etc/ssl/certs
 ```
 
-Faire signer le certificat `demineur.site.csr` par l'organisme [Let's Encrypt](https://letsencrypt.org/fr/) ou [Gandi](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) et placer le nouveau certificat (.crt) dans le répertoire `/etc/ssl/certs`. Télécharger également le certificat nommé `GandiStandardSSLCA2.pem` et le placer dans le même dossier.
+Faire signer le certificat `demineur.site.csr` par un registrar tel que [Let's Encrypt](https://letsencrypt.org/fr/) ou [Gandi](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) et placer le nouveau certificat (.crt) dans le répertoire `/etc/ssl/certs`. Télécharger également le certificat nommé `GandiStandardSSLCA2.pem` et le placer dans le même dossier.
 
 * Installation du paquet `apache2` :
 ```
@@ -1345,13 +1335,82 @@ dnssec-verify -o demineur.site db.demineur.site.signed
 
 Afin de sécuriser les données, on configure un RAID5 avec les trois partition LVM de 1Go créées précédemment.
 
+* Créer les partitions virtuelles pour le RAID :
+```
+lvcreate -L1G -n demineur-raid-1 virtual
+lvcreate -L1G -n demineur-raid-2 virtual
+lvcreate -L1G -n demineur-raid-3 virtual
+```
 
+* Ajouter les partitions à la configuration de la VM :
+```
+'phy:/dev/virtual/demineur-raid-1,xvdb1,w',
+'phy:/dev/virtual/demineur-raid-2,xvdb2,w',
+'phy:/dev/virtual/demineur-raid-3,xvdb3,w'
+```
+
+* Créer le RAID5 à l'aide de la commande `mdadm` :
+```
+mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/xvdb1 /dev/xvdb2 /dev/xvdb3
+```
+
+* Formater la partition RAID5 :
+```
+mkfs.ext4 /dev/md0
+```
+
+* Ajout de la partition au fichier `/etc/fstab` :
+```
+/dev/md0 /media/raid ext4 defaults 0 1
+```
+
+* On recharge les partitions afin de prendre en compte le RAID :
+```
+mount -a
+```
 
 ## Chiffrement des données
+
+On connecte une clef USB sur laquelle on crée une partition chiffrée.
 
 * Installation des paquets nécessaires :
 ```
 apt install lvm2 cryptsetup
+```
+
+* Créer une partition `sda` sur la clef USB :
+```
+fdisk /dev/sda
+```
+&ensp; &rarr; entrer `n` pour créer une nouvelle partition
+&ensp; &rarr; entrer le numéro de la partition
+&ensp; &rarr; début de la partition : laisser par défaut
+&ensp; &rarr; fin de la partition : laisser par défaut (prend tout l'espace disponible)
+&ensp; &rarr; `w` pour ecrire
+
+* Informer le kernel que la table des partitions a changé :
+```
+partprobe
+```
+
+* Initialisation du chiffrement de la partition :
+```
+cryptsetup luksFormat /dev/sda1
+cryptsetup luksOpen /dev/sda1 home
+mkfs.ext4 /dev/mapper/home
+```
+
+### Tester le chiffrement :
+
+* Montage de la partition :
+```
+mount /dev/mapper/home /mnt/
+```
+
+* Copie de fichiers sur la clef puis démontage de la clef USB :
+```
+umount /mnt
+crytsetup luksClose home
 ```
 
 # Tests d'intrusion
