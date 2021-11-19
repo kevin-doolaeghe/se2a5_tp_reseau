@@ -1471,7 +1471,12 @@ On considère la commande ci-dessous de la configuration précédente :
 radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
 ```
 Cette commande permet au PA de se connecter au serveur `freeradius` sur la VM afin de vérifier qu'un utilisateur se connecte avec les bons identifiants.  
-Le mot de passe `glopglop` qui est spécifié sera également à définir dans les clients `freeradius` sur la VM. 
+Le mot de passe `glopglop` qui est spécifié sera également à définir dans les clients `freeradius` sur la VM.
+
+L'accès SSH au PA nécessite de spécifier l'utilisation de l'algorithme de Diffie-Hellman et le chiffrement AES-128 :
+```
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -c aes128-cbc admin@10.60.101.1
+```
 
 ## Point d'accès Wifi n°2
 
