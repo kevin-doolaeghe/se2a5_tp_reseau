@@ -1324,7 +1324,7 @@ mv site-ksk.private demineur.site-ksk.private
 
 * Génération de la clef asymétrique de signature des enregistrements :
 ```
-dnssec-keygen -a RSASHA1 -b 1024 -n ZONE demineur.site
+dnssec-keygen -a RSASHA256 -b 1024 -n ZONE demineur.site
 ```
 
 ```
