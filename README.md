@@ -1185,9 +1185,9 @@ $TTL    604800
 @	IN	NS	ns.demineur.site.
 @	IN	NS	ns6.gandi.net.
 @	IN	A	193.48.57.164
-ns	IN	A	193.48.57.164
-ns	IN	AAAA	2001:7A8:116E:60A4::1
-www	IN	CNAME	193.48.57.164
+NS	IN	A	193.48.57.164
+NS	IN	AAAA	2001:7A8:116E:60A4::1
+WWW	IN	CNAME	NS
 ```
 
 * Redémarrage du service `bind9` :
