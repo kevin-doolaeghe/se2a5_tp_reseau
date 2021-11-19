@@ -1412,11 +1412,12 @@ On connecte une clef USB sur laquelle on crée une partition chiffrée.
 apt install lvm2 cryptsetup
 ```
 
-* Créer une partition `sda` sur la clef USB :
+* Créer une partition `sdb1` sur la clef USB `sdb` :
 ```
-fdisk /dev/sda
+fdisk /dev/sdb
 ```
 &ensp; &rarr; entrer `n` pour créer une nouvelle partition  
+&ensp; &rarr; entrer `p` pour créer une partition primaire  
 &ensp; &rarr; entrer le numéro de la partition  
 &ensp; &rarr; début de la partition : laisser par défaut  
 &ensp; &rarr; fin de la partition : laisser par défaut (prend tout l'espace disponible)  
@@ -1429,8 +1430,11 @@ partprobe
 
 * Initialisation du chiffrement de la partition :
 ```
-cryptsetup luksFormat /dev/sda1
-cryptsetup luksOpen /dev/sda1 home
+cryptsetup luksFormat /dev/sdb1
+```
+
+```
+cryptsetup luksOpen /dev/sdb1 home
 mkfs.ext4 /dev/mapper/home
 ```
 
