@@ -1080,7 +1080,7 @@ mount /dev/xvda4 /mnt
 
 * Copie des données des répertoires `/home` et `/var` :
 ```
-cp -r /var/* /mnt
+mv /var/* /mnt
 ```
 
 * Démontage des partitions virtuelles :
