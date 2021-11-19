@@ -1548,7 +1548,7 @@ aircrack-ng -b 04:DA:D2:9C:50:53 output*.cap
 ```
 
 ```
-KEY FOUND! [ 55:55:55:55:5A:BC:11:CB:A4:44:44:44:44 ] 
+KEY FOUND! [ 21:34:56:78:9A:BC:05:CB:A9:87:65:43:21 ] 
 Decrypted correctly: 100%
 ```
 
