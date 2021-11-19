@@ -452,7 +452,6 @@ On ajoute une règle SLA afin de tester la réponse d'un routeur de l'universit�
 ```
 SE2A5-R1(config)#interface t5/5
 SE2A5-R1(config-if)#switchport
-SE2A5-R1(config-if)#switchport trunk encapsulation dot1q
 SE2A5-R1(config-if)#switchport mode trunk
 SE2A5-R1(config-if)#switchport trunk allowed vlan 110
 SE2A5-R1(config-if)#no shutdown
@@ -478,7 +477,6 @@ SE2A5-R1(config-if)#exit
 ```
 SE2A5-R2(config)#interface g1/0/2
 SE2A5-R2(config-if)#switchport
-SE2A5-R2(config-if)#switchport trunk encapsulation dot1q
 SE2A5-R2(config-if)#switchport mode trunk
 SE2A5-R2(config-if)#switchport trunk allowed vlan 110
 SE2A5-R2(config-if)#no shutdown
@@ -1348,8 +1346,8 @@ SE2A5-R1(config-if)#exit
 ```
 SE2A5-R1(config)#interface t5/4
 SE2A5-R1(config-if)#switchport
-SE2A5-R1(config-if)#switchport trunk encapsulation dot1q
 SE2A5-R1(config-if)#switchport mode trunk
+SE2A5-R1(config-if)#switchport trunk allowed vlan 1
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
@@ -1383,8 +1381,8 @@ SE2A5-R2(config-if)#exit
 ```
 SE2A5-R2(config)#interface g1/0/2
 SE2A5-R2(config-if)#switchport
-SE2A5-R2(config-if)#switchport trunk encapsulation dot1q
 SE2A5-R2(config-if)#switchport mode trunk
+SE2A5-R2(config-if)#switchport trunk allowed vlan 1
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
