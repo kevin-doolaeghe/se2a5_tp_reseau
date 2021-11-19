@@ -18,7 +18,6 @@
   * [Configuration de l'accès Internet de secours](#configuration-de-laccès-internet-de-secours)
   * [Paramétrage IPv6](#paramétrage-ipv6)
   * [Configuration du VLAN 164](#configuration-du-vlan-164)
-  * [Configuration du Wifi](#configuration-du-wifi)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
   * [Création de la machine virtuelle](#création-de-la-machine-virtuelle)
   * [Serveur SSH](#serveur-ssh)
@@ -29,6 +28,12 @@
   * [Sécurisation des données](#sécurisation-des-données)
   * [Chiffrement des données](#chiffrement-des-données)
   * [Ferme de serveurs Web](#ferme-de-serveurs-web)
+* [Configuration du Wifi (WPA-EAP)](#configuration-du-wifi-wpa-eap)
+  * [Cisco Catalyst 6509-E](#cisco-catalyst-6509-e)
+  * [Cisco Catalyst 9200](#cisco-catalyst-9200)
+  * [Point d'accès Wifi n°1](#point-daccès-wifi-n1)
+  * [Point d'accès Wifi n°2](#point-daccès-wifi-n2)
+  * [Configuration de la VM](#configuration-de-la-vm)
 * [Tests d'intrusion](#tests-dintrusion)
   * [Cassage de clef WEP d'un point d'accès Wifi](#cassage-de-clef-wep-dun-point-daccès-wifi)
   * [Cassage du mot de passe WPA-PSK par force brute](#cassage-du-mot-de-passe-wpa-psk-par-force-brute)
@@ -1317,7 +1322,7 @@ docker run -d --name apache apache
 
 # Configuration du Wifi (WPA-EAP)
 
-## &ensp; &rarr; **Cisco Catalyst 6509-E**
+## Cisco Catalyst 6509-E
 
 * DHCP :
 ```
@@ -1349,7 +1354,7 @@ SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
 
-## &ensp; &rarr; **Cisco Catalyst 9200**
+## Cisco Catalyst 9200
 
 * DHCP :
 ```
@@ -1384,9 +1389,9 @@ SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
 
-## &ensp; &rarr; **Point d'accès Wifi n°1**
+## Point d'accès Wifi n°1
 
-### &ensp; &ensp; **Configuration de base :**
+### &ensp; &ensp; Configuration de base :
 
 ```
 ap>enable
@@ -1429,7 +1434,7 @@ SE2A5-AP1(config-if)#exit
 SE2A5-AP1(config)#ip default-gateway 10.60.101.254
 ```
 
-### **Réseau privé (VLAN 164) :**
+### &ensp; &ensp; Réseau privé (VLAN 164) :
 
 * VLAN 164 :
 ```
@@ -1468,9 +1473,9 @@ radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
 Cette commande permet au PA de se connecter au serveur `freeradius` sur la VM afin de vérifier qu'un utilisateur se connecte avec les bons identifiants.  
 Le mot de passe `glopglop` qui est spécifié sera également à définir dans les clients `freeradius` sur la VM. 
 
-## &ensp; &rarr; **Point d'accès Wifi n°2**
+## Point d'accès Wifi n°2
 
-### &ensp; &ensp; **Configuration de base :**
+### &ensp; &ensp; Configuration de base :
 
 ```
 ap>enable
@@ -1513,7 +1518,7 @@ SE2A5-AP2(config-if)#exit
 SE2A5-AP2(config)#ip default-gateway 10.60.101.254
 ```
 
-### &ensp; &ensp; **Réseau privé (VLAN 164) :**
+### &ensp; &ensp; Réseau privé (VLAN 164) :
 
 * VLAN 164 :
 ```
