@@ -1331,8 +1331,8 @@ SE2A5-R1(dhcp-config)#dns 193.48.57.164
 SE2A5-R1(dhcp-config)#network 10.60.164.0 255.255.255.0
 SE2A5-R1(dhcp-config)#default-router 10.60.164.254
 SE2A5-R1(dhcp-config)#exit
-SE2A5-R1(config)#ip dhcp excluded-address 10.60.114.0 10.60.114.99
-SE2A5-R1(config)#ip dhcp excluded-address 10.60.114.150 10.60.114.255
+SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.99
+SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.150 10.60.164.255
 ```
 * VLAN n°1 :
 ```
@@ -1363,8 +1363,8 @@ SE2A5-R2(dhcp-config)#dns 193.48.57.164
 SE2A5-R2(dhcp-config)#network 10.60.164.0 255.255.255.0
 SE2A5-R2(dhcp-config)#default-router 10.60.164.254
 SE2A5-R2(dhcp-config)#exit
-SE2A5-R2(config)#ip dhcp excluded-address 10.60.114.0 10.60.114.149
-SE2A5-R2(config)#ip dhcp excluded-address 10.60.114.200 10.60.114.255
+SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.149
+SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.200 10.60.164.255
 ```
 * VLAN n°1 :
 ```
