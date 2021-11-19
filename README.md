@@ -1467,7 +1467,7 @@ crytsetup luksClose home
 
 * Installer Docker :
 ```
-sudo apt install docker
+sudo apt install docker.io
 ```
 
 * Créer un fichier de configuration `Dockerfile` :
@@ -1476,6 +1476,11 @@ FROM httpd:latest
 WORKDIR /usr/local/apache2/htdocs 
 COPY src/ .
 CMD [ "httpd", "-D", "FOREGROUND" ]
+```
+
+* Récupérer l'image `httpd` via Docker Hub :
+```
+docker pull httpd
 ```
 
 * Créer l'image Docker :
