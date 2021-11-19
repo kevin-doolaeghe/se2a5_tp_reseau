@@ -1428,24 +1428,30 @@ fdisk /dev/sdb
 partprobe
 ```
 
-* Initialisation du chiffrement de la partition :
+* Initialisation du chiffrement LUKS de la partition :
 ```
-cryptsetup luksFormat /dev/sdb1
+cryptsetup create home /dev/sdb1 --type luks
+```
+
+Le chiffrement LUKS montre à l'utilisateur qu'il s'agit d'une partition chiffrée.  
+Il faut plutôt utiliser le chiffrement PLAIN qui permet de masquer ces informations.
+```
+cryptsetup create home /dev/sdb1 --type plain
 ```
 
 * Formatage de la partition :
 ```
-cryptsetup luksOpen /dev/sdb1 home
+cryptsetup open --type {plain|luks} /dev/sdb1 home
 mkfs.ext4 /dev/mapper/home
-cryptsetup luksClose home
+cryptsetup close home
 ```
 
 ### Tester le chiffrement :
 
 * Montage de la partition :
 ```
-cryptsetup luksOpen /dev/sdb1 home
-mount /dev/mapper/home /mnt/
+cryptsetup open --type {plain|luks} /dev/sdb1 home
+mount /dev/mapper/home /mnt
 ```
 
 * Ajout de fichiers sur la clef :
@@ -1456,23 +1462,9 @@ echo "test" > /mnt/test
 * Démontage de la clef USB :
 ```
 umount /mnt
-crytsetup luksClose home
-```
-En reconnectant à nouveau la clef, on peut lire le fichier.
-
-Le chiffrement LUKS montre à l'utilisateur qu'il s'agit d'une partition chiffrée.
-Il faut plutôt utiliser le chiffrement PLAIN qui permet de masquer ces informations.
-```
-cryptsetup create home /dev/sdb1 --type plain
-```
-
-De la même façon que précédemment, il est possible d'ouvrir et de fermer la partition chiffrée :
-```
-cryptsetup open home --type plain
-```
-```
 cryptsetup close home
 ```
+En reconnectant à nouveau la clef, on peut lire le fichier.
 
 ## Ferme de serveurs Web
 
