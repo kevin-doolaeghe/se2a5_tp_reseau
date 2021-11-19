@@ -1351,7 +1351,7 @@ zone "demineur.site" {
 ```
 
 * Modification du fichier `/etc/bind/named.conf.options` :
-````
+```
 options{
   directory "/var/cache/bind";
   forwarders {
