@@ -1121,9 +1121,10 @@ iface eth0 inet static
 ## Serveur DNS
 
 Dans un premier temps, on utilise le registrar [Gandi](gandi.net) afin de réserver le nom de domaine `demineur.site`.  
-Une fois le nom de domaine réservé, il est alors possible de configurer les serveurs de noms, les Glue Records et les enregistrements DNS :  
+Une fois le nom de domaine réservé, il est alors possible de configurer les serveurs de noms et les Glue Records :  
 &ensp; &rarr; Ajouter le Glue Record vers `193.48.57.164` afin d'associer le nom de domaine `demineur.site` à l'adresse IP `193.48.57.164`  
 &ensp; &rarr; Modifier les serveurs de noms pour utiliser `ns.demineur.site` et `ns6.gandi.net`  
+En attendant que les serveurs de noms soient correctement modifiés, il est possible de changer les enregistrements DNS :  
 &ensp; &rarr; Modifier l'enrgistrement DNS `@`-`A` avec la valeur `193.48.57.193`  
 &ensp; &rarr; Ajouter l'enrgistrement DNS `ns`-`A` avec la valeur `193.48.57.193`  
 &ensp; &rarr; Modifier l'enrgistrement DNS `www`-`CNAME` avec la valeur `ns.demineur.site.`
