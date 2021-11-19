@@ -1175,18 +1175,19 @@ cp /etc/bind/db.local /etc/bind/db.demineur.site
 ; BIND data file for demineur.site
 ;
 $TTL    604800
-@       IN      SOA     demineur.site. root.demineur.site. (
-                              2         ; Serial
+@       IN      SOA     ns.demineur.site. root.demineur.site. (
+                              1         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      ns.demineur.site.
-@       IN      NS      ns6.gandi.net.
-ns      IN      A       193.48.57.164
-ns      IN      AAAA    2001:7A8:116E:60A4::1
-www     IN      CNAME   193.48.57.164
+@	IN	NS	ns.demineur.site.
+@	IN	NS	ns6.gandi.net.
+@	IN	A	193.48.57.164
+ns	IN	A	193.48.57.164
+ns	IN	AAAA	2001:7A8:116E:60A4::1
+www	IN	CNAME	193.48.57.164
 ```
 
 * Redémarrage du service `bind9` :
@@ -1287,7 +1288,7 @@ ServerName demineur.site
 
 * Modification du fichier `nano /etc/apache2/sites-available/000-default.conf` :
 ```
-Redirect permanent / https://ns.demineur.site/
+Redirect permanent / https://www.demineur.site/
 ```
 
 * Redémarrage du service `apache2` :
