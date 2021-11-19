@@ -552,7 +552,7 @@ Le VLAN 532 permet l'interconnexion avec l'accès Internet de secours.
 * Bridge VLAN 532 :
 ```
 SE2A5-R3(config)#interface bdi 532
-SE2A5-R3(config-if)#ip address 192.168.222.50 255.255.255.248
+SE2A5-R3(config-if)#ip address 192.168.222.82 255.255.255.248
 SE2A5-R3(config-if)#no shutdown
 SE2A5-R3(config-if)#exit
 ```
