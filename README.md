@@ -1790,7 +1790,7 @@ apt-get install nmap
 
 * Vérifier que le serveur est accessible à distance (analyse des ports) :
 ```
-nmap -6 https://10.0.0.253
+nmap -6 https://{Adresse du serveur}
 ```
 
 * Se connecter au serveur via `ssh` avec les identifiants récupérés dans la base de données :
