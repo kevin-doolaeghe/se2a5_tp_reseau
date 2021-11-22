@@ -611,16 +611,15 @@ On configure une mascarade sur l'accès Internet de secours.
 
 * Configuration NAT :
 ```
-SE2A5-R3(config)#interface vlan 532
+SE2A5-R3(config)#interface bdi 532
 SE2A5-R3(config-if)#ip nat outside
 SE2A5-R3(config-if)#exit
-SE2A5-R3(config)#interface vlan 110
+SE2A5-R3(config)#interface bdi 110
 SE2A5-R3(config-if)#ip nat inside
 SE2A5-R3(config-if)#exit
 SE2A5-R3(config)#access-list 10 permit 193.48.57.160 0.0.0.15
-SE2A5-R3(config)#ip nat pool NAT_POOL 213.215.6.101 213.215.6.101 netmask 255.255.255.255
-SE2A5-R3(config)#ip nat inside source list 10 pool NAT_POOL overload
-SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 /28
+SE2A5-R3(config)#ip nat inside source list 10 interface loopback 0 overload
+SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 255.255.255.240
 ```
 
 ## Paramétrage IPv6
