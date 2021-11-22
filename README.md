@@ -582,7 +582,7 @@ SE2A5-R3(config-if)#exit
 ```
 * Interface vers Cisco Catalyst 6509-E :
 ```
-SE2A5-R3(config)#interface g0/0/3
+SE2A5-R3(config)#interface g0/0/2
 SE2A5-R3(config-if)#description TP-NET1
 SE2A5-R3(config-if)#no shutdown
 SE2A5-R3(config-if)#service instance 110 ethernet
