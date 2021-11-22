@@ -16,6 +16,7 @@
   * [Redondance des routeurs via le protocole VRRP](#redondance-des-routeurs-via-le-protocole-vrrp)
   * [Translation NAT statique](#translation-nat-statique)
   * [Configuration de l'accès Internet de secours](#configuration-de-laccès-internet-de-secours)
+  * [Configuration des PA Wifi](#configuration-des-pa-wifi)
   * [Paramétrage IPv6](#paramétrage-ipv6)
   * [Configuration du VLAN 164](#configuration-du-vlan-164)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
@@ -25,15 +26,10 @@
   * [Serveur DNS](#serveur-dns)
   * [Serveur Web](#serveur-web)
   * [Configuration DNSSEC](#configuration-dnssec)
+  * [Configuration de RADIUS (Points d'accès WPA-EAP)](#configuration-de-radius-points-daccès-wpa-eap)
   * [Sécurisation des données](#sécurisation-des-données)
   * [Chiffrement des données](#chiffrement-des-données)
   * [Ferme de serveurs Web](#ferme-de-serveurs-web)
-* [Configuration du Wifi (WPA-EAP)](#configuration-du-wifi-wpa-eap)
-  * [Cisco Catalyst 6509-E](#cisco-catalyst-6509-e)
-  * [Cisco Catalyst 9200](#cisco-catalyst-9200)
-  * [Point d'accès Wifi n°1](#point-daccès-wifi-n1)
-  * [Point d'accès Wifi n°2](#point-daccès-wifi-n2)
-  * [Configuration de la VM](#configuration-de-la-vm)
 * [Tests d'intrusion](#tests-dintrusion)
   * [Cassage de clef WEP d'un point d'accès Wifi](#cassage-de-clef-wep-dun-point-daccès-wifi)
   * [Cassage du mot de passe WPA-PSK par force brute](#cassage-du-mot-de-passe-wpa-psk-par-force-brute)
@@ -622,6 +618,241 @@ SE2A5-R3(config)#ip nat inside source list 10 interface loopback 0 overload
 SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 255.255.255.240
 ```
 
+## Configuration des PA Wifi
+
+### Cisco Catalyst 6509-E
+
+* DHCP :
+```
+SE2A5-R1(config)#ip dhcp pool DEMINEUR
+SE2A5-R1(dhcp-config)#dns 193.48.57.164
+SE2A5-R1(dhcp-config)#network 10.60.164.0 255.255.255.0
+SE2A5-R1(dhcp-config)#default-router 10.60.164.254
+SE2A5-R1(dhcp-config)#exit
+SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.99
+SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.150 10.60.164.255
+```
+* VLAN n°1 :
+```
+SE2A5-R1(config)#interface vlan 1
+SE2A5-R1(config-if)#ip address 10.60.101.252 255.255.255.0
+SE2A5-R1(config-if)#no shutdown
+SE2A5-R1(config-if)#vrrp 1 ip 10.60.101.254
+SE2A5-R1(config-if)#vrrp 1 preempt
+SE2A5-R1(config-if)#vrrp 1 priority 110
+SE2A5-R1(config-if)#exit
+```
+* Interface vers le point d'accès Wifi :
+```
+SE2A5-R1(config)#interface g3/1
+SE2A5-R1(config-if)#switchport
+SE2A5-R1(config-if)#switchport mode trunk
+SE2A5-R1(config-if)#switchport trunk allowed vlan 1
+SE2A5-R1(config-if)#no shutdown
+SE2A5-R1(config-if)#exit
+```
+
+### Cisco Catalyst 9200
+
+* DHCP :
+```
+SE2A5-R2(config)#ip dhcp pool DEMINEUR
+SE2A5-R2(dhcp-config)#dns 193.48.57.164
+SE2A5-R2(dhcp-config)#network 10.60.164.0 255.255.255.0
+SE2A5-R2(dhcp-config)#default-router 10.60.164.254
+SE2A5-R2(dhcp-config)#exit
+SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.149
+SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.200 10.60.164.255
+```
+* VLAN n°1 :
+```
+SE2A5-R2(config)#interface vlan 1
+SE2A5-R2(config-if)#ip address 10.60.101.253 255.255.255.0
+SE2A5-R2(config-if)#no shutdown
+SE2A5-R2(config-if)#vrrp 1 address-family ipv4
+SE2A5-R2(config-if-vrrp)#address 10.60.101.254
+SE2A5-R2(config-if-vrrp)#vrrpv2
+SE2A5-R2(config-if-vrrp)#priority 100
+SE2A5-R2(config-if-vrrp)#preempt
+SE2A5-R2(config-if-vrrp)#exit
+SE2A5-R2(config-if)#exit
+```
+* Interface vers le point d'accès Wifi :
+```
+SE2A5-R2(config)#interface g1/0/3
+SE2A5-R2(config-if)#switchport
+SE2A5-R2(config-if)#switchport mode trunk
+SE2A5-R2(config-if)#switchport trunk allowed vlan 1
+SE2A5-R2(config-if)#no shutdown
+SE2A5-R2(config-if)#exit
+```
+
+### Point d'accès Wifi n°1
+
+#### &ensp; &ensp; Configuration de base :
+
+```
+ap>enable
+ap#configure terminal
+```
+* Configuration du nom d’hôte :
+```
+ap(config)#hostname SE2A5-AP1
+```
+* Accès SSH :
+```
+SE2A5-AP1(config)#aaa new-model
+SE2A5-AP1(config)#username admin privilege 15 secret glopglop
+SE2A5-AP1(config)#ip domain-name plil.info
+SE2A5-AP1(config)#crypto key generate rsa general-keys modulus 2048
+SE2A5-AP1(config)#ip ssh version 2
+SE2A5-AP1(config)#line vty 0 15
+SE2A5-AP1(config-line)#transport input ssh
+SE2A5-AP1(config-line)#exit
+```
+* Accès console :
+```
+SE2A5-AP1(config)#line console 0
+SE2A5-AP1(config-line)#password glopglop
+SE2A5-AP1(config-line)#login authentification default
+SE2A5-AP1(config-line)#exit
+```
+* Sécurisation des accès :
+```
+SE2A5-AP1(config)#service password-encryption
+SE2A5-AP1(config)#enable secret glopglop
+SE2A5-AP1(config)#banner motd #Restricted Access#
+```
+* VLAN n°1 :
+```
+SE2A5-AP1(config)#interface BVI 1
+SE2A5-AP1(config-if)#ip address 10.60.101.1 255.255.255.0
+SE2A5-AP1(config-if)#no shutdown
+SE2A5-AP1(config-if)#exit
+SE2A5-AP1(config)#ip default-gateway 10.60.101.254
+```
+
+#### &ensp; &ensp; Réseau privé (VLAN 164) :
+
+* VLAN 164 :
+```
+SE2A5-AP1(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
+SE2A5-AP1(config)#radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
+SE2A5-AP1(config)#aaa group server radius RADIUS_DEMINEUR
+SE2A5-AP1(config-server)#server 10.60.100.164 auth-port 1812 acct-port 1813
+SE2A5-AP1(config-server)#exit
+SE2A5-AP1(config)#dot11 ssid DEMINEUR1
+SE2A5-AP1(config-ssid)#mbssid guest-mode
+SE2A5-AP1(config-ssid)#vlan 164
+SE2A5-AP1(config-ssid)#authentication open eap EAP_DEMINEUR
+SE2A5-AP1(config-ssid)#authentication network-eap EAP_DEMINEUR
+SE2A5-AP1(config-ssid)#authentication key-management wpa
+SE2A5-AP1(config-ssid)#exit
+SE2A5-AP1(config)#interface dot11radio0.164
+SE2A5-AP1(config-subif)#encapsulation dot1q 164
+SE2A5-AP1(config-subif)#bridge-group 64
+SE2A5-AP1(config-subif)#exit
+SE2A5-AP1(config)#interface g0.164
+SE2A5-AP1(config-subif)#encapsulation dot1q 164
+SE2A5-AP1(config-subif)#bridge-group 64
+SE2A5-AP1(config-subif)#exit
+SE2A5-AP1(config)#interface dot11radio 0
+SE2A5-AP2(config-if)#no shutdown
+SE2A5-AP1(config-if)#encryption vlan 164 mode ciphers aes-ccm tkip
+SE2A5-AP1(config-if)#mbssid
+SE2A5-AP1(config-if)#ssid DEMINEUR1
+SE2A5-AP1(config-if)#exit
+```
+
+On considère la commande ci-dessous de la configuration précédente :
+```
+radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
+```
+Cette commande permet au PA de se connecter au serveur `freeradius` sur la VM afin de vérifier qu'un utilisateur se connecte avec les bons identifiants.  
+Le mot de passe `glopglop` qui est spécifié sera également à définir dans les clients `freeradius` sur la VM.
+
+L'accès SSH au PA nécessite de spécifier l'utilisation de l'algorithme de Diffie-Hellman et le chiffrement AES-128 :
+```
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -c aes128-cbc admin@10.60.101.1
+```
+
+### Point d'accès Wifi n°2
+
+#### &ensp; &ensp; Configuration de base :
+
+```
+ap>enable
+ap#configure terminal
+```
+* Configuration du nom d’hôte :
+```
+ap(config)#hostname SE2A5-AP2
+```
+* Accès SSH :
+```
+SE2A5-AP2(config)#aaa new-model
+SE2A5-AP2(config)#username admin privilege 15 secret glopglop
+SE2A5-AP2(config)#ip domain-name plil.info
+SE2A5-AP2(config)#crypto key generate rsa general-keys modulus 2048
+SE2A5-AP2(config)#ip ssh version 2
+SE2A5-AP2(config)#line vty 0 15
+SE2A5-AP2(config-line)#transport input ssh
+SE2A5-AP2(config-line)#exit
+```
+* Accès console :
+```
+SE2A5-AP2(config)#line console 0
+SE2A5-AP2(config-line)#password glopglop
+SE2A5-AP2(config-line)#login authentification default
+SE2A5-AP2(config-line)#exit
+```
+* Sécurisation des accès :
+```
+SE2A5-AP2(config)#service password-encryption
+SE2A5-AP2(config)#enable secret glopglop
+SE2A5-AP2(config)#banner motd #Restricted Access#
+```
+* VLAN n°1 :
+```
+SE2A5-AP2(config)#interface BVI 1
+SE2A5-AP2(config-if)#ip address 10.60.101.2 255.255.255.0
+SE2A5-AP2(config-if)#no shutdown
+SE2A5-AP2(config-if)#exit
+SE2A5-AP2(config)#ip default-gateway 10.60.101.254
+```
+
+#### &ensp; &ensp; Réseau privé (VLAN 164) :
+
+* VLAN 164 :
+```
+SE2A5-AP2(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
+SE2A5-AP2(config)#radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
+SE2A5-AP2(config)#aaa group server radius RADIUS_DEMINEUR
+SE2A5-AP2(config-server)#server 10.60.100.164 auth-port 1812 acct-port 1813
+SE2A5-AP2(config-server)#exit
+SE2A5-AP2(config)#dot11 ssid DEMINEUR2
+SE2A5-AP2(config-ssid)#mbssid guest-mode
+SE2A5-AP2(config-ssid)#vlan 164
+SE2A5-AP2(config-ssid)#authentication open eap EAP_DEMINEUR
+SE2A5-AP2(config-ssid)#authentication network-eap EAP_DEMINEUR
+SE2A5-AP2(config-ssid)#authentication key-management wpa
+SE2A5-AP2(config-ssid)#exit
+SE2A5-AP2(config)#interface dot11radio0.164
+SE2A5-AP2(config-subif)#encapsulation dot1q 164
+SE2A5-AP2(config-subif)#bridge-group 64
+SE2A5-AP2(config-subif)#exit
+SE2A5-AP2(config)#interface g0.164
+SE2A5-AP2(config-subif)#encapsulation dot1q 164
+SE2A5-AP2(config-subif)#bridge-group 64
+SE2A5-AP2(config-subif)#exit
+SE2A5-AP2(config)#interface dot11radio 0
+SE2A5-AP2(config-if)#no shutdown
+SE2A5-AP2(config-if)#encryption vlan 164 mode ciphers aes-ccm tkip
+SE2A5-AP2(config-if)#mbssid
+SE2A5-AP2(config-if)#ssid DEMINEUR2
+SE2A5-AP2(config-if)#exit
+```
+
 ## Paramétrage IPv6
 
 Le protocole de routage utilisé pour IPv6 est RIPv6. Le routeur Cisco Catalyst 6509-E possède une métrique plus faible que le routeur Cisco Catalyst 9200 lui permettant de devenir prioritaire pour le routage IPv6.
@@ -1181,6 +1412,48 @@ Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dan
 dnssec-verify -o demineur.site db.demineur.site.signed
 ```
 
+## Configuration de RADIUS (Points d'accès WPA-EAP)
+
+* Installer le paquet `freeradius` :
+```
+apt install freeradius
+```
+
+* Modifier le fichier `/etc/freeradius/clients.conf` :
+```
+client PA1 {
+        ipaddr  = 10.60.101.1
+        secret  = glopglop
+}
+
+client PA2 {
+        ipaddr  = 10.60.101.2
+        secret  = glopglop
+}
+```
+
+* Ajouter un utilisateur en modifiant le fichier `/etc/freeradius/3.0/users` :
+```
+pifou Cleartext-Password := "pasglop"
+```
+
+* Arrêter le service `freeradius` durant la phase de tests :
+```
+service freeradius stop
+```
+
+* Démarrer `freeradius` en mode debug :
+```
+freeradius -X
+```
+Pendant que `freeradius` est en mode debug, tenter de se connecter au réseau Wifi qui a été créé et vérifier que celle-ci est prise en compte.  
+Si la connexion est validée alors la configuration est correcte. Dans ce cas, arrêter le programme de debug et réactiver le service.
+
+* Redémarrer le service `freeradius` :
+```
+service freeradius start
+```
+
 ## Sécurisation des données
 
 Afin de sécuriser les données, on configure un RAID5 avec les trois partition LVM de 1Go créées précédemment.
@@ -1315,283 +1588,6 @@ docker build -t apache .
 * Créer un conteneur :
 ```
 docker run -d --name apache apache
-```
-
-# Configuration du Wifi (WPA-EAP)
-
-## Cisco Catalyst 6509-E
-
-* DHCP :
-```
-SE2A5-R1(config)#ip dhcp pool DEMINEUR
-SE2A5-R1(dhcp-config)#dns 193.48.57.164
-SE2A5-R1(dhcp-config)#network 10.60.164.0 255.255.255.0
-SE2A5-R1(dhcp-config)#default-router 10.60.164.254
-SE2A5-R1(dhcp-config)#exit
-SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.99
-SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.150 10.60.164.255
-```
-* VLAN n°1 :
-```
-SE2A5-R1(config)#interface vlan 1
-SE2A5-R1(config-if)#ip address 10.60.101.252 255.255.255.0
-SE2A5-R1(config-if)#no shutdown
-SE2A5-R1(config-if)#vrrp 1 ip 10.60.101.254
-SE2A5-R1(config-if)#vrrp 1 preempt
-SE2A5-R1(config-if)#vrrp 1 priority 110
-SE2A5-R1(config-if)#exit
-```
-* Interface vers le point d'accès Wifi :
-```
-SE2A5-R1(config)#interface g3/1
-SE2A5-R1(config-if)#switchport
-SE2A5-R1(config-if)#switchport mode trunk
-SE2A5-R1(config-if)#switchport trunk allowed vlan 1
-SE2A5-R1(config-if)#no shutdown
-SE2A5-R1(config-if)#exit
-```
-
-## Cisco Catalyst 9200
-
-* DHCP :
-```
-SE2A5-R2(config)#ip dhcp pool DEMINEUR
-SE2A5-R2(dhcp-config)#dns 193.48.57.164
-SE2A5-R2(dhcp-config)#network 10.60.164.0 255.255.255.0
-SE2A5-R2(dhcp-config)#default-router 10.60.164.254
-SE2A5-R2(dhcp-config)#exit
-SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.149
-SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.200 10.60.164.255
-```
-* VLAN n°1 :
-```
-SE2A5-R2(config)#interface vlan 1
-SE2A5-R2(config-if)#ip address 10.60.101.253 255.255.255.0
-SE2A5-R2(config-if)#no shutdown
-SE2A5-R2(config-if)#vrrp 1 address-family ipv4
-SE2A5-R2(config-if-vrrp)#address 10.60.101.254
-SE2A5-R2(config-if-vrrp)#vrrpv2
-SE2A5-R2(config-if-vrrp)#priority 100
-SE2A5-R2(config-if-vrrp)#preempt
-SE2A5-R2(config-if-vrrp)#exit
-SE2A5-R2(config-if)#exit
-```
-* Interface vers le point d'accès Wifi :
-```
-SE2A5-R2(config)#interface g1/0/3
-SE2A5-R2(config-if)#switchport
-SE2A5-R2(config-if)#switchport mode trunk
-SE2A5-R2(config-if)#switchport trunk allowed vlan 1
-SE2A5-R2(config-if)#no shutdown
-SE2A5-R2(config-if)#exit
-```
-
-## Point d'accès Wifi n°1
-
-### &ensp; &ensp; Configuration de base :
-
-```
-ap>enable
-ap#configure terminal
-```
-* Configuration du nom d’hôte :
-```
-ap(config)#hostname SE2A5-AP1
-```
-* Accès SSH :
-```
-SE2A5-AP1(config)#aaa new-model
-SE2A5-AP1(config)#username admin privilege 15 secret glopglop
-SE2A5-AP1(config)#ip domain-name plil.info
-SE2A5-AP1(config)#crypto key generate rsa general-keys modulus 2048
-SE2A5-AP1(config)#ip ssh version 2
-SE2A5-AP1(config)#line vty 0 15
-SE2A5-AP1(config-line)#transport input ssh
-SE2A5-AP1(config-line)#exit
-```
-* Accès console :
-```
-SE2A5-AP1(config)#line console 0
-SE2A5-AP1(config-line)#password glopglop
-SE2A5-AP1(config-line)#login authentification default
-SE2A5-AP1(config-line)#exit
-```
-* Sécurisation des accès :
-```
-SE2A5-AP1(config)#service password-encryption
-SE2A5-AP1(config)#enable secret glopglop
-SE2A5-AP1(config)#banner motd #Restricted Access#
-```
-* VLAN n°1 :
-```
-SE2A5-AP1(config)#interface BVI 1
-SE2A5-AP1(config-if)#ip address 10.60.101.1 255.255.255.0
-SE2A5-AP1(config-if)#no shutdown
-SE2A5-AP1(config-if)#exit
-SE2A5-AP1(config)#ip default-gateway 10.60.101.254
-```
-
-### &ensp; &ensp; Réseau privé (VLAN 164) :
-
-* VLAN 164 :
-```
-SE2A5-AP1(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
-SE2A5-AP1(config)#radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
-SE2A5-AP1(config)#aaa group server radius RADIUS_DEMINEUR
-SE2A5-AP1(config-server)#server 10.60.100.164 auth-port 1812 acct-port 1813
-SE2A5-AP1(config-server)#exit
-SE2A5-AP1(config)#dot11 ssid DEMINEUR1
-SE2A5-AP1(config-ssid)#mbssid guest-mode
-SE2A5-AP1(config-ssid)#vlan 164
-SE2A5-AP1(config-ssid)#authentication open eap EAP_DEMINEUR
-SE2A5-AP1(config-ssid)#authentication network-eap EAP_DEMINEUR
-SE2A5-AP1(config-ssid)#authentication key-management wpa
-SE2A5-AP1(config-ssid)#exit
-SE2A5-AP1(config)#interface dot11radio0.164
-SE2A5-AP1(config-subif)#encapsulation dot1q 164
-SE2A5-AP1(config-subif)#bridge-group 64
-SE2A5-AP1(config-subif)#exit
-SE2A5-AP1(config)#interface g0.164
-SE2A5-AP1(config-subif)#encapsulation dot1q 164
-SE2A5-AP1(config-subif)#bridge-group 64
-SE2A5-AP1(config-subif)#exit
-SE2A5-AP1(config)#interface dot11radio 0
-SE2A5-AP2(config-if)#no shutdown
-SE2A5-AP1(config-if)#encryption vlan 164 mode ciphers aes-ccm tkip
-SE2A5-AP1(config-if)#mbssid
-SE2A5-AP1(config-if)#ssid DEMINEUR1
-SE2A5-AP1(config-if)#exit
-```
-
-On considère la commande ci-dessous de la configuration précédente :
-```
-radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
-```
-Cette commande permet au PA de se connecter au serveur `freeradius` sur la VM afin de vérifier qu'un utilisateur se connecte avec les bons identifiants.  
-Le mot de passe `glopglop` qui est spécifié sera également à définir dans les clients `freeradius` sur la VM.
-
-L'accès SSH au PA nécessite de spécifier l'utilisation de l'algorithme de Diffie-Hellman et le chiffrement AES-128 :
-```
-ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -c aes128-cbc admin@10.60.101.1
-```
-
-## Point d'accès Wifi n°2
-
-### &ensp; &ensp; Configuration de base :
-
-```
-ap>enable
-ap#configure terminal
-```
-* Configuration du nom d’hôte :
-```
-ap(config)#hostname SE2A5-AP2
-```
-* Accès SSH :
-```
-SE2A5-AP2(config)#aaa new-model
-SE2A5-AP2(config)#username admin privilege 15 secret glopglop
-SE2A5-AP2(config)#ip domain-name plil.info
-SE2A5-AP2(config)#crypto key generate rsa general-keys modulus 2048
-SE2A5-AP2(config)#ip ssh version 2
-SE2A5-AP2(config)#line vty 0 15
-SE2A5-AP2(config-line)#transport input ssh
-SE2A5-AP2(config-line)#exit
-```
-* Accès console :
-```
-SE2A5-AP2(config)#line console 0
-SE2A5-AP2(config-line)#password glopglop
-SE2A5-AP2(config-line)#login authentification default
-SE2A5-AP2(config-line)#exit
-```
-* Sécurisation des accès :
-```
-SE2A5-AP2(config)#service password-encryption
-SE2A5-AP2(config)#enable secret glopglop
-SE2A5-AP2(config)#banner motd #Restricted Access#
-```
-* VLAN n°1 :
-```
-SE2A5-AP2(config)#interface BVI 1
-SE2A5-AP2(config-if)#ip address 10.60.101.2 255.255.255.0
-SE2A5-AP2(config-if)#no shutdown
-SE2A5-AP2(config-if)#exit
-SE2A5-AP2(config)#ip default-gateway 10.60.101.254
-```
-
-### &ensp; &ensp; Réseau privé (VLAN 164) :
-
-* VLAN 164 :
-```
-SE2A5-AP2(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
-SE2A5-AP2(config)#radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
-SE2A5-AP2(config)#aaa group server radius RADIUS_DEMINEUR
-SE2A5-AP2(config-server)#server 10.60.100.164 auth-port 1812 acct-port 1813
-SE2A5-AP2(config-server)#exit
-SE2A5-AP2(config)#dot11 ssid DEMINEUR2
-SE2A5-AP2(config-ssid)#mbssid guest-mode
-SE2A5-AP2(config-ssid)#vlan 164
-SE2A5-AP2(config-ssid)#authentication open eap EAP_DEMINEUR
-SE2A5-AP2(config-ssid)#authentication network-eap EAP_DEMINEUR
-SE2A5-AP2(config-ssid)#authentication key-management wpa
-SE2A5-AP2(config-ssid)#exit
-SE2A5-AP2(config)#interface dot11radio0.164
-SE2A5-AP2(config-subif)#encapsulation dot1q 164
-SE2A5-AP2(config-subif)#bridge-group 64
-SE2A5-AP2(config-subif)#exit
-SE2A5-AP2(config)#interface g0.164
-SE2A5-AP2(config-subif)#encapsulation dot1q 164
-SE2A5-AP2(config-subif)#bridge-group 64
-SE2A5-AP2(config-subif)#exit
-SE2A5-AP2(config)#interface dot11radio 0
-SE2A5-AP2(config-if)#no shutdown
-SE2A5-AP2(config-if)#encryption vlan 164 mode ciphers aes-ccm tkip
-SE2A5-AP2(config-if)#mbssid
-SE2A5-AP2(config-if)#ssid DEMINEUR2
-SE2A5-AP2(config-if)#exit
-```
-
-## Configuration de la VM
-
-* Installer le paquet `freeradius` :
-```
-apt install freeradius
-```
-
-* Modifier le fichier `/etc/freeradius/clients.conf` :
-```
-client PA1 {
-        ipaddr  = 10.60.101.1
-        secret  = glopglop
-}
-
-client PA2 {
-        ipaddr  = 10.60.101.2
-        secret  = glopglop
-}
-```
-
-* Ajouter un utilisateur en modifiant le fichier `/etc/freeradius/3.0/users` :
-```
-pifou Cleartext-Password := "pasglop"
-```
-
-* Arrêter le service `freeradius` durant la phase de tests :
-```
-service freeradius stop
-```
-
-* Démarrer `freeradius` en mode debug :
-```
-freeradius -X
-```
-Pendant que `freeradius` est en mode debug, tenter de se connecter au réseau Wifi qui a été créé et vérifier que celle-ci est prise en compte.  
-Si la connexion est validée alors la configuration est correcte. Dans ce cas, arrêter le programme de debug et réactiver le service.
-
-* Redémarrer le service `freeradius` :
-```
-service freeradius start
 ```
 
 # Tests d'intrusion
