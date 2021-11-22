@@ -1343,7 +1343,7 @@ SE2A5-R1(config-if)#exit
 ```
 * Interface vers le point d'accès Wifi :
 ```
-SE2A5-R1(config)#interface t5/4
+SE2A5-R1(config)#interface g3/1
 SE2A5-R1(config-if)#switchport
 SE2A5-R1(config-if)#switchport mode trunk
 SE2A5-R1(config-if)#switchport trunk allowed vlan 1
@@ -1378,7 +1378,7 @@ SE2A5-R2(config-if)#exit
 ```
 * Interface vers le point d'accès Wifi :
 ```
-SE2A5-R2(config)#interface g1/0/2
+SE2A5-R2(config)#interface g1/0/3
 SE2A5-R2(config-if)#switchport
 SE2A5-R2(config-if)#switchport mode trunk
 SE2A5-R2(config-if)#switchport trunk allowed vlan 1
