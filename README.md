@@ -460,7 +460,7 @@ SE2A5-R1(config-if)#exit
 * SLA :
 ```
 SE2A5-R1(config)#ip sla 1
-SE2A5-R1(config-ip-sla)#icmp-echo 192.168.44.1
+SE2A5-R1(config-ip-sla)#icmp-echo 192.168.222.65
 SE2A5-R1(config-ip-sla-echo)#frequency 300
 SE2A5-R1(config-ip-sla-echo)#exit
 SE2A5-R1(config)#ip sla schedule 1 life forever start-time now
@@ -485,7 +485,7 @@ SE2A5-R2(config-if)#exit
 * SLA :
 ```
 SE2A5-R2(config)#ip sla 1
-SE2A5-R2(config-ip-sla)#icmp-echo 192.168.44.1
+SE2A5-R2(config-ip-sla)#icmp-echo 192.166.222.65
 SE2A5-R2(config-ip-sla-echo)#frequency 300
 SE2A5-R2(config-ip-sla-echo)#exit
 SE2A5-R2(config)#ip sla schedule 1 life forever start-time now
