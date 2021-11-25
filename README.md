@@ -16,7 +16,7 @@
   * [Redondance des routeurs via le protocole VRRP](#redondance-des-routeurs-via-le-protocole-vrrp)
   * [Translation NAT statique](#translation-nat-statique)
   * [Configuration de l'accès Internet de secours](#configuration-de-laccès-internet-de-secours)
-  * [Configuration des PA Wifi](#configuration-des-pa-wifi)
+  * [Configuration des points d'accès Wifi](#configuration-des-points-daccès-wifi)
   * [Paramétrage IPv6](#paramétrage-ipv6)
   * [Configuration du VLAN 164](#configuration-du-vlan-164)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
@@ -618,7 +618,7 @@ SE2A5-R3(config)#ip nat inside source list 10 interface loopback 0 overload
 SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 255.255.255.240
 ```
 
-## Configuration des PA Wifi
+## Configuration des points d'accès Wifi
 
 ### Cisco Catalyst 6509-E
 
@@ -1435,6 +1435,14 @@ client PA2 {
 pifou Cleartext-Password := "pasglop"
 ```
 
+* Modifier le fichier `/etc/freeradius/3.0/mods-enables/eap` :
+```
+eap {
+  default_eap_type = peap
+  ...
+}
+```
+
 * Arrêter le service `freeradius` durant la phase de tests :
 ```
 service freeradius stop
@@ -1884,7 +1892,6 @@ sed -i 's/\(.*\)/\1\1/' dico
   * Configuration DNS avec Gandi fonctionnelle
   * Création du certificat SSL
   * Activation du site HTTPS
-* Tests du craquage de clef WEP
 
 ## Vendredi 19/11/2021 08h-12h
 
@@ -1894,6 +1901,7 @@ sed -i 's/\(.*\)/\1\1/' dico
   * Cassage de clef WPA2
 * Configuration de `freeradius` et couplage au Wifi WPA-EAP
 * Configuration DNSSEC
+* Cassage de clef WEP et WPA2
 
 ## Lundi 29/11/2021 08h-12h
 
