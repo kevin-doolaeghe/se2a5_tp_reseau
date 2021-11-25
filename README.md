@@ -1413,7 +1413,8 @@ zone "demineur.site" {
 	allow-transfer { 217.70.177.40; }; // ns6.gandi.net
 };
 ```
-Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dans le fichier demineur.site-ksk.key) à Gandi. L'algorithme utilisé est le 5 (RSA/SHA-1).
+Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dans le fichier `demineur.site-ksk.key`) à Gandi.  
+L'algorithme utilisé est le 5 (RSA/SHA-1).
 
 ### Vérification :
 
