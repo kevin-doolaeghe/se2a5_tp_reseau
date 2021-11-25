@@ -1327,7 +1327,7 @@ Listen 80
 <IfModule mod_ssl.c>
         <VirtualHost 193.48.57.164:443>
                 ServerName demineur.site
-                ServerAlias ns.demineur.site
+                ServerAlias ns.demineur.site www.demineur.site
                 DocumentRoot /var/www/demineur.site/
                 CustomLog /var/log/apache2/secure_access.log combined
                 SSLEngine on
