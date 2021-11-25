@@ -1371,37 +1371,37 @@ dnssec-lookaside auto;
 * Création du répertoire `demineur.site.dnssec` :
 ```
 mkdir /etc/bind/demineur.site.dnssec/
+cd /etc/bind/demineur.site.dnssec/
 ```
 
 * Génération de la clef asymétrique de signature de clefs de zone :
 ```
-dnssec-keygen -a RSASHA1 -b 2048 -f KSK -n ZONE demineur.site
+dnssec-keygen -a RSASHA256 -b 2048 -f KSK -n ZONE demineur.site
 ```
 
 ```
-mv site-ksk.key demineur.site-ksk.key
-mv site-ksk.private demineur.site-ksk.private
+mv Kdemineur.site.*.key demineur.site-ksk.key
+mv Kdemineur.site.*.private demineur.site-ksk.private
 ```
 
 * Génération de la clef asymétrique de signature des enregistrements :
 ```
-dnssec-keygen -a RSASHA256 -b 1024 -n ZONE demineur.site
+dnssec-keygen -a RSASHA256 -b 2048 -n ZONE demineur.site
 ```
 
 ```
-mv site-zsk.key demineur.site-zsk.key
-mv site-zsk.private demineur.site-zsk.private
+mv Kdemineur.site.*.key demineur.site-zsk.key
+mv Kdemineur.site.*.private demineur.site-zsk.private
 ```
 
 * Modification du fichier `/etc/bind/db.demineur.site` :
 ```
-$include /etc/bind/demineur.site.dnssec/demineur.site-ksk.key
-$include /etc/bind/demineur.site.dnssec/demineur.site-zsk.key
+$include "/etc/bind/demineur.site.dnssec/demineur.site-ksk.key"
+$include "/etc/bind/demineur.site.dnssec/demineur.site-zsk.key"
 ```
 
 * Signature des enregistrements de la zone :
 ```
-cd /etc/bind/demineur.site.dnssec
 dnssec-signzone -o demineur.site -k demineur.site-ksk ../db.demineur.site demineur.site-zsk
 ```
 
