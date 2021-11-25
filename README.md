@@ -651,6 +651,17 @@ SE2A5-R1(config-if)#switchport trunk allowed vlan 1
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
+* NAT PAT :
+```
+SE2A5-R1(config)#access-list 164 permit 10.60.164.0 0.0.0.255 any
+SE2A5-R1(config)#interface vlan 164
+SE2A5-R1(config-if)#ip nat inside
+SE2A5-R1(config-if)#exit
+SE2A5-R1(config)#interface vlan 110
+SE2A5-R1(config-if)#ip nat outside
+SE2A5-R1(config-if)#exit
+SE2A5-R1(config)#ip nat inside source list 164 interface t6/4 overload
+```
 
 ### Cisco Catalyst 9200
 
