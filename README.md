@@ -1211,17 +1211,18 @@ zone "demineur.site" {
 
 * Modification du fichier `/etc/bind/named.conf.options` :
 ```
-options {
+options{
   directory "/var/cache/bind";
   forwarders {
-    217.70.177.40;
+    8.8.8.8;
+    4.4.2.2;
   };
   dnssec-validation auto;
   listen-on-v6 { any; };
   allow-transfer { "allowed_to_transfer"; };
 };
 acl "allowed_to_transfer" {
-  217.70.177.40;
+  217.70.177.40/32;
 };
 ```
 
@@ -1249,6 +1250,7 @@ $TTL    604800
 NS	IN	A	193.48.57.164
 NS	IN	AAAA	2001:7A8:116E:60A4::1
 WWW	IN	CNAME	NS
+SSH	IN	CNAME	NS
 ```
 
 * Redémarrage du service `bind9` :
