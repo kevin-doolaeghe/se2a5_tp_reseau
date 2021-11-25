@@ -1191,28 +1191,26 @@ nameserver 127.0.0.1
 
 * Modification du fichier `/etc/bind/named.conf.local` :
 ```
-zone "demineur.site" IN {
+zone "demineur.site" {
 	type master;
 	file "/etc/bind/db.demineur.site";
-	allow-transfer { 8.8.8.8; 8.8.4.4; };
+	allow-transfer { 217.70.177.40; }; // ns6.gandi.net
 };
 ```
 
 * Modification du fichier `/etc/bind/named.conf.options` :
 ```
-options{
+options {
   directory "/var/cache/bind";
   forwarders {
-     8.8.8.8;
-     8.8.4.4;
+    217.70.177.40;
   };
   dnssec-validation auto;
   listen-on-v6 { any; };
   allow-transfer { "allowed_to_transfer"; };
 };
 acl "allowed_to_transfer" {
-  8.8.8.8/32 ;
-  8.8.4.4/32 ;
+  217.70.177.40;
 };
 ```
 
@@ -1401,7 +1399,7 @@ dnssec-signzone -o demineur.site -k demineur.site-ksk ../db.demineur.site demine
 zone "demineur.site" {
 	type master;
 	file "/etc/bind/db.demineur.site.signed";
-	allow-transfer { 8.8.8.8; 8.8.4.4; };
+	allow-transfer { 217.70.177.40; }; // ns6.gandi.net
 };
 ```
 Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dans le fichier demineur.site-ksk.key) à Gandi. L'algorithme utilisé est le 5 (RSA/SHA-1).
