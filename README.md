@@ -1418,7 +1418,12 @@ Il ne reste plus qu’à communiquer la partie publique de la KSK (présente dan
 ### Vérification :
 
 ```
+cd /etc/bind/
 dnssec-verify -o demineur.site db.demineur.site.signed
+```
+
+```
+service bind9 restart
 ```
 
 ## Configuration de RADIUS (Points d'accès WPA-EAP)
