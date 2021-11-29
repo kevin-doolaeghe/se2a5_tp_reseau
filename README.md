@@ -16,9 +16,9 @@
   * [Redondance des routeurs via le protocole VRRP](#redondance-des-routeurs-via-le-protocole-vrrp)
   * [Translation NAT statique](#translation-nat-statique)
   * [Configuration de l'accès Internet de secours](#configuration-de-laccès-internet-de-secours)
+  * [Configuration du VLAN 164](#configuration-du-vlan-164)
   * [Configuration des points d'accès Wifi](#configuration-des-points-daccès-wifi)
   * [Paramétrage IPv6](#paramétrage-ipv6)
-  * [Configuration du VLAN 164](#configuration-du-vlan-164)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
   * [Création de la machine virtuelle](#création-de-la-machine-virtuelle)
   * [Serveur SSH](#serveur-ssh)
@@ -618,6 +618,67 @@ SE2A5-R3(config)#ip nat inside source list 10 interface loopback 0 overload
 SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 255.255.255.240
 ```
 
+## Configuration du VLAN 164
+
+Le réseau privé utilisé principalement pour les points d'accès Wifi est `10.60.164.0/24`. Il s'agit du VLAN 164.
+
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
+
+* VLAN 164 :
+```
+SE2A5-R1(config)#vlan 164
+SE2A5-R1(config-vlan)#name DEMINEUR
+SE2A5-R1(config-vlan)#exit
+SE2A5-R1(config)#interface vlan 164
+SE2A5-R1(config-if)#description DEMINEUR
+SE2A5-R1(config-if)#ip address 10.60.164.1 255.255.255.0
+SE2A5-R1(config-if)#ipv6 address 2001:660:4401:60a4::/64 eui-64
+SE2A5-R1(config-if)#ipv6 nd prefix 2001:660:4401:60a4::/64 1000 900
+SE2A5-R1(config-if)#ipv6 nd router-preference high
+SE2A5-R1(config-if)#ipv6 enable
+SE2A5-R1(config-if)#no shutdown
+SE2A5-R1(config-if)#vrrp 64 ip 10.60.164.254
+SE2A5-R1(config-if)#vrrp 64 preempt
+SE2A5-R1(config-if)#vrrp 64 priority 110
+SE2A5-R1(config-if)#vrrp 64 track 1 decrement 50
+SE2A5-R1(config-if)#exit
+SE2A5-R1(config)#interface t5/4
+SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
+SE2A5-R1(config-if)#exit
+SE2A5-R1(config)#interface g3/1
+SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
+SE2A5-R1(config-if)#exit
+```
+
+### &ensp; &rarr; **Cisco Catalyst 9200**
+
+* VLAN 164 :
+```
+SE2A5-R2(config)#vlan 164
+SE2A5-R2(config-vlan)#name DEMINEUR
+SE2A5-R2(config-vlan)#exit
+SE2A5-R2(config)#interface vlan 164
+SE2A5-R2(config-if)#description DEMINEUR
+SE2A5-R2(config-if)#ip address 10.60.164.2 255.255.255.0
+SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a4::/64 eui-64
+SE2A5-R2(config-if)#ipv6 nd prefix 2001:660:4401:60a4::/64 1000 900
+SE2A5-R2(config-if)#ipv6 nd router-preference high
+SE2A5-R2(config-if)#ipv6 enable
+SE2A5-R2(config-if)#no shutdown
+SE2A5-R2(config-if)#vrrp 64 address-family ipv4
+SE2A5-R2(config-if-vrrp)#address 10.60.164.254
+SE2A5-R2(config-if-vrrp)#priority 100
+SE2A5-R2(config-if-vrrp)#preempt
+SE2A5-R2(config-if-vrrp)#exit
+SE2A5-R2(config-if)#exit
+SE2A5-R2(config)#interface t1/1/2
+SE2A5-R2(config-if)#switchport trunk allowed vlan add 164
+SE2A5-R2(config-if)#exit
+SE2A5-R2(config)#interface g1/0/3
+SE2A5-R2(config-if)#switchport trunk allowed vlan add 164
+SE2A5-R2(config-if)#exit
+```
+
 ## Configuration des points d'accès Wifi
 
 ### Cisco Catalyst 6509-E
@@ -918,7 +979,7 @@ SE2A5-R2(config-if)#exit
 SE2A5-R2(config)#interface vlan 110
 SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
 SE2A5-R2(config-if)#ipv6 nd prefix 2001:660:4401:60a0::/64 1000 900
-SE2A5-R2(config-if)#ipv6 nd router-preference high
+SE2A5-R2(config-if)#ipv6 nd router-preference medium
 SE2A5-R2(config-if)#ipv6 enable
 SE2A5-R2(config-if)#exit
 ```
@@ -935,68 +996,8 @@ SE2A5-R3(config-if)#exit
 ```
 SE2A5-R3(config)#interface bdi 110
 SE2A5-R3(config-if)#ipv6 enable
+SE2A5-R3(config-if)#ipv6 nd router-preference low
 SE2A5-R3(config-if)#exit
-```
-
-## Configuration du VLAN 164
-
-Le réseau privé utilisé principalement pour les points d'accès Wifi est `10.60.164.0/24`. Il s'agit du VLAN 164.
-
-### &ensp; &rarr; **Cisco Catalyst 6509-E**
-
-* VLAN 164 :
-```
-SE2A5-R1(config)#vlan 164
-SE2A5-R1(config-vlan)#name DEMINEUR
-SE2A5-R1(config-vlan)#exit
-SE2A5-R1(config)#interface vlan 164
-SE2A5-R1(config-if)#description DEMINEUR
-SE2A5-R1(config-if)#ip address 10.60.164.1 255.255.255.0
-SE2A5-R1(config-if)#ipv6 address 2001:660:4401:60a4::/64 eui-64
-SE2A5-R1(config-if)#ipv6 nd prefix 2001:660:4401:60a4::/64 1000 900
-SE2A5-R1(config-if)#ipv6 nd router-preference high
-SE2A5-R1(config-if)#ipv6 enable
-SE2A5-R1(config-if)#no shutdown
-SE2A5-R1(config-if)#vrrp 64 ip 10.60.164.254
-SE2A5-R1(config-if)#vrrp 64 preempt
-SE2A5-R1(config-if)#vrrp 64 priority 110
-SE2A5-R1(config-if)#vrrp 64 track 1 decrement 50
-SE2A5-R1(config-if)#exit
-SE2A5-R1(config)#interface t5/4
-SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
-SE2A5-R1(config-if)#exit
-SE2A5-R1(config)#interface g3/1
-SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
-SE2A5-R1(config-if)#exit
-```
-
-### &ensp; &rarr; **Cisco Catalyst 9200**
-
-* VLAN 164 :
-```
-SE2A5-R2(config)#vlan 164
-SE2A5-R2(config-vlan)#name DEMINEUR
-SE2A5-R2(config-vlan)#exit
-SE2A5-R2(config)#interface vlan 164
-SE2A5-R2(config-if)#description DEMINEUR
-SE2A5-R2(config-if)#ip address 10.60.164.2 255.255.255.0
-SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a4::/64 eui-64
-SE2A5-R2(config-if)#ipv6 nd prefix 2001:660:4401:60a4::/64 1000 900
-SE2A5-R2(config-if)#ipv6 nd router-preference high
-SE2A5-R2(config-if)#ipv6 enable
-SE2A5-R2(config-if)#no shutdown
-SE2A5-R2(config-if)#vrrp 64 address-family ipv4
-SE2A5-R2(config-if-vrrp)#address 10.60.164.254
-SE2A5-R2(config-if-vrrp)#priority 100
-SE2A5-R2(config-if-vrrp)#preempt
-SE2A5-R2(config-if-vrrp)#exit
-SE2A5-R2(config-if)#exit
-SE2A5-R2(config)#interface t1/1/2
-SE2A5-R2(config-if)#switchport trunk allowed vlan add 164
-SE2A5-R2(config-if)#exit
-SE2A5-R2(config)#interface g1/0/3
-SE2A5-R2(config-if)#switchport trunk allowed vlan add 164
-SE2A5-R2(config-if)#exit
 ```
 
 # Machine virtuelle sur le serveur Capbreton
