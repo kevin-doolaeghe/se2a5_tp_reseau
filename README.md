@@ -708,7 +708,7 @@ SE2A5-R1(config-if)#exit
 SE2A5-R1(config)#interface g3/1
 SE2A5-R1(config-if)#switchport
 SE2A5-R1(config-if)#switchport mode trunk
-SE2A5-R1(config-if)#switchport trunk allowed vlan 1
+SE2A5-R1(config-if)#switchport trunk allowed vlan add 1
 SE2A5-R1(config-if)#no shutdown
 SE2A5-R1(config-if)#exit
 ```
