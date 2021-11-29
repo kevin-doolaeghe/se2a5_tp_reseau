@@ -653,7 +653,7 @@ SE2A5-R1(config-if)#exit
 ```
 * NAT PAT :
 ```
-SE2A5-R1(config)#access-list 164 permit 10.60.164.0 0.0.0.255 any
+SE2A5-R1(config)#access-list 164 permit ip 10.60.164.0 0.0.0.255 any
 SE2A5-R1(config)#interface vlan 164
 SE2A5-R1(config-if)#ip nat inside
 SE2A5-R1(config-if)#exit
