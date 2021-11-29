@@ -911,6 +911,7 @@ SE2A5-R2(config)#interface vlan 530
 SE2A5-R2(config-if)#ipv6 address fe80::3 link-local
 SE2A5-R2(config-if)#ipv6 rip tpima2a5 enable
 SE2A5-R2(config-if)#ipv6 enable
+SE2A5-R2(config-if)#exit
 ```
 * VLAN 110 :
 ```
