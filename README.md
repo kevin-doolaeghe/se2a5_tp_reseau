@@ -1919,7 +1919,7 @@ sed -i 's/\(.*\)/\1\1/' dico
 
 ## Jeudi 16/09/2021 10h-12h
 
-**Tâches effectuées :**
+### Tâches effectuées :
 * Plan d'adressage
 * Architecture réseau
 * Câblage des fibres
