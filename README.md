@@ -4,6 +4,12 @@
 
 ### **Kevin Doolaeghe**
 
+## Sources
+
+* [Sujet du TP](https://rex.plil.fr/Enseignement/Reseau/Protocoles.IMA5sc/)
+* [Wiki IMA](https://wiki-ima.plil.fr/mediawiki//index.php/TP_sysres_IMA2a5_2021/2022_G4)
+* [Site de X. Redon](https://rex.plil.fr/)
+
 # Sommaire
 
 * [Plan d'adressage](#plan-dadressage)
@@ -2001,11 +2007,7 @@ sed -i 's/\(.*\)/\1\1/' dico
   * Adressage DHCP fonctionnel pour les appareils Wifi
   * Communication fonctionnelle entre les appareils Wifi connectés et les autres équipements
   * Configuration d'un serveur Proxy pour donner aux appareils Wifi un accès à Internet
-* Conversion du fichier MD au format Wiki :
-```
-apt install pandoc
-pandoc README.md -t mediawiki -o README.wiki
-```
+* Conversion du fichier `README.md` vers le format Wiki à l'aide de la commande `apt install pandoc ; pandoc README.md -t mediawiki -o README.wiki`
 
 ## Vendredi 03/12/2021 08h-10h
 
