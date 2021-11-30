@@ -2007,7 +2007,10 @@ sed -i 's/\(.*\)/\1\1/' dico
   * Adressage DHCP fonctionnel pour les appareils Wifi
   * Communication fonctionnelle entre les appareils Wifi connectés et les autres équipements
   * Configuration d'un serveur Proxy pour donner aux appareils Wifi un accès à Internet
-* Conversion du fichier `README.md` vers le format Wiki à l'aide de la commande `apt install pandoc ; pandoc README.md -t mediawiki -o README.wiki`
+* Conversion du fichier `README.md` vers le format Wiki à l'aide de la commande :
+```
+apt install pandoc ; pandoc README.md -t mediawiki -o README.wiki
+```
 
 ## Vendredi 03/12/2021 08h-10h
 
