@@ -1269,7 +1269,8 @@ $TTL    604800
 @	IN	NS	ns6.gandi.net.
 @	IN	A	193.48.57.164
 NS	IN	A	193.48.57.164
-NS	IN	AAAA	2001:7A8:116E:60A4::1
+NS	IN	AAAA	2001:7A8:116E:60A0:216:3eff:febe:bf2d
+; NS	IN	AAAA	2001:7A8:116E:60A4::1
 WWW	IN	CNAME	NS
 SSH	IN	CNAME	NS
 ```
@@ -1459,7 +1460,7 @@ Le serveur RADIUS permet l'authentification des utilisateurs qui se connectent a
 apt install freeradius
 ```
 
-* Modifier le fichier `/etc/freeradius/clients.conf` :
+* Modifier le fichier `/etc/freeradius/3.0/clients.conf` :
 ```
 client PA1 {
         ipaddr  = 10.60.101.1
