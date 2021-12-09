@@ -1765,6 +1765,37 @@ KEY FOUND! [ 21:34:56:78:9A:BC:05:CB:A9:87:65:43:21 ]
 Decrypted correctly: 100%
 ```
 
+## Génération d'un dictionnaire de mots de passe
+
+* Installation du paquet `crunch` :
+```
+sudo apt install crunch
+```
+
+* Syntaxe de la commande :
+```
+crunch <min> <max> [options]
+```
+
+* Générer toutes les chaînes de quatre caractères commençant par un 'A', suivi par deux nombres et se terminant par un '2' :
+```
+crunch 4 4 -t A%%2
+```
+- `@` : lettres majuscules
+- `,` : lettres minuscules
+- `%` : nombres
+- `^` : symboles
+
+* Générer un dictionnaire contenant toutes les combinaisons des caractères alpha-numériques :
+```
+crunch 2 2 -f charset.lst mixalpha-numeric
+```
+Le fichier `charset.lst` contient différentes listes de caractères parmi lesquelles l'ensemble des caractères alpha-numériques :
+```
+mixalpha-numeric = [abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]
+```
+Le contenu de ce fichier est disponible [ici](https://github.com/jaalto/external-sf--crunch-wordlist/blob/master/charset.lst).
+
 ## Cassage du mot de passe WPA-PSK par force brute
 
 * Vérification du nom de la carte Wifi :
